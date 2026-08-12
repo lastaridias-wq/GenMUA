@@ -54,17 +54,8 @@
             align-items: center;
         }
 
-        .studio-info h2 {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .studio-info p {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
+        .studio-info h2 { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        .studio-info p { font-size: 12px; color: var(--text-muted); }
         .owner-badge {
             background: #F4EFEA;
             color: var(--accent);
@@ -84,9 +75,7 @@
             padding-bottom: 90px;
         }
 
-        .page-content.active {
-            display: block;
-        }
+        .page-content.active { display: block; }
 
         /* Ringkasan Omzet */
         .omzet-card {
@@ -98,17 +87,8 @@
             box-shadow: 0 6px 16px rgba(61,53,50,0.15);
         }
 
-        .omzet-card p {
-            font-size: 12px;
-            color: rgba(255,255,255,0.7);
-            margin-bottom: 4px;
-        }
-
-        .omzet-card h1 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
+        .omzet-card p { font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 4px; }
+        .omzet-card h1 { font-size: 24px; font-weight: 700; margin-bottom: 16px; }
 
         .stats-grid {
             display: grid;
@@ -117,16 +97,8 @@
             border-top: 1px solid rgba(255,255,255,0.15);
             padding-top: 12px;
         }
-
-        .stat-item h3 {
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        .stat-item span {
-            font-size: 10px;
-            color: rgba(255,255,255,0.7);
-        }
+        .stat-item h3 { font-size: 14px; font-weight: 700; }
+        .stat-item span { font-size: 10px; color: rgba(255,255,255,0.7); }
 
         /* Menu Akses Cepat */
         .section-title {
@@ -154,16 +126,11 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-
-        .menu-btn:hover {
-            background: #F4EFEA;
-            border-color: var(--accent);
-        }
-
+        .menu-btn:hover { background: #F4EFEA; border-color: var(--accent); }
         .menu-icon { font-size: 18px; margin-bottom: 4px; }
         .menu-btn span { font-size: 10px; font-weight: 600; color: var(--text-main); display: block; }
 
-        /* Card / Box Tampilan */
+        /* Card / Box Tampilan List */
         .booking-box {
             background: #FBF9F7;
             border: 1px solid var(--border);
@@ -173,20 +140,39 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
+            position: relative;
         }
 
         .client-name { font-size: 13px; font-weight: 700; color: var(--text-main); }
-        .client-service { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .client-service { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
         
+        .right-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
         .status-badge {
             font-size: 10px;
             font-weight: 700;
             padding: 4px 8px;
             border-radius: 6px;
+            text-align: center;
         }
         .status-badge.progress { background: #FFF3E0; color: var(--warning); }
+        .status-badge.done { background: #E8F5E9; color: var(--success); }
         .status-badge.expense { background: #FFEBEE; color: var(--danger); }
         .status-badge.invoice { background: #E3F2FD; color: #1976D2; cursor: pointer; }
+
+        .btn-delete-item {
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 500;
+        }
 
         .action-card-btn {
             width: 100%;
@@ -199,9 +185,7 @@
             font-weight: 700;
             cursor: pointer;
             margin-bottom: 16px;
-            transition: opacity 0.2s;
         }
-        .action-card-btn:hover { opacity: 0.9; }
 
         /* Navigasi Bawah */
         .bottom-nav {
@@ -211,9 +195,7 @@
             border-top: 1px solid var(--border);
             padding: 12px 0;
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 0; left: 0; right: 0;
             z-index: 10;
         }
 
@@ -223,12 +205,10 @@
             font-size: 10px;
             font-weight: 650;
             cursor: pointer;
-            text-decoration: none;
             background: none;
             border: none;
             flex: 1;
         }
-
         .nav-item.active { color: var(--accent); }
         .nav-item div { font-size: 16px; margin-bottom: 2px; }
 
@@ -240,15 +220,9 @@
             padding: 20px;
             margin-bottom: 16px;
         }
+        .settings-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
 
-        .settings-card h4 {
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text-main);
-        }
-
-        /* MODAL UMUM */
+        /* MODAL / SHEET FORM */
         .modal-overlay {
             display: none;
             position: absolute;
@@ -259,7 +233,6 @@
             justify-content: center;
             align-items: flex-end;
         }
-
         .modal-overlay.active { display: flex; }
 
         .modal-sheet {
@@ -273,10 +246,7 @@
             overflow-y: auto;
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
         .modal-header {
             display: flex;
@@ -284,25 +254,12 @@
             align-items: center;
             margin-bottom: 20px;
         }
-
         .modal-header h3 { font-size: 16px; font-weight: 700; }
         .close-modal { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-muted); }
 
-        .form-group {
-            margin-bottom: 14px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            text-transform: uppercase;
-        }
-
-        .form-group input, .form-group select {
+        .form-group { margin-bottom: 14px; text-align: left; }
+        .form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 12px;
             border: 1px solid var(--border);
@@ -312,8 +269,8 @@
             color: var(--text-main);
             outline: none;
         }
-
-        .form-group input:focus { border-color: var(--accent); background: #FFFFFF; }
+        .form-group textarea { resize: none; height: 60px; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); background: #FFFFFF; }
 
         .submit-btn {
             width: 100%;
@@ -326,15 +283,12 @@
             font-weight: 700;
             cursor: pointer;
             margin-top: 10px;
-            transition: background 0.2s;
         }
-
-        .submit-btn:hover { background: var(--accent); }
 
         /* TOAST NOTIFIKASI */
         #toast {
             visibility: hidden;
-            min-width: 220px;
+            min-width: 240px;
             background-color: #3D3532;
             color: #fff;
             text-align: center;
@@ -342,8 +296,7 @@
             padding: 12px 16px;
             position: fixed;
             z-index: 1000;
-            left: 50%;
-            bottom: 70px;
+            left: 50%; bottom: 70px;
             transform: translateX(-50%);
             font-size: 12px;
             font-weight: 600;
@@ -351,43 +304,50 @@
             transition: opacity 0.3s, bottom 0.3s;
             box-shadow: 0 8px 24px rgba(0,0,0,0.15);
         }
+        #toast.show { visibility: visible; opacity: 1; bottom: 90px; }
 
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 90px;
+        /* PREVIEW INVOICE TEXT BOX */
+        .invoice-preview-box {
+            background: #FBF9F7;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 12px;
+            text-align: left;
+            white-space: pre-line;
+            margin-bottom: 16px;
+            color: #5C4F4A;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        <!-- Header Dinamis -->
         <div class="app-header">
             <div class="studio-info">
                 <h2 id="headerStudioName">Nela Mua Studio</h2>
                 <p>Katalog & Agenda Aktif</p>
             </div>
-            <div class="owner-badge" id="headerOwnerBadge">Owner</div>
+            <div class="owner-badge" id="headerOwnerBadge">FREE TRIAL</div>
         </div>
 
-        <!-- HALAMAN 1: BERANDA -->
         <div id="pageBeranda" class="page-content active">
             <div class="omzet-card">
                 <p>Total Pendapatan Bersih</p>
-                <h1 id="totalOmzetDisplay">Rp 49.685.000</h1>
+                <h1 id="totalOmzetDisplay">Rp 4.500.000</h1>
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <h3 id="countKlien">44</h3>
+                        <h3 id="countKlien">1</h3>
                         <span>Total Klien</span>
                     </div>
                     <div class="stat-item">
-                        <h3 id="countBooking">18</h3>
+                        <h3 id="countBooking">1</h3>
                         <span>Booking Aktif</span>
                     </div>
                     <div class="stat-item">
-                        <h3 id="countBelumLunas" style="color: #FFB74D;">3</h3>
-                        <span>Sisa Pelunasan</span>
+                        <h3 id="countBelumLunas" style="color: #FFB74D;">1</h3>
+                        <span>Belum Lunas</span>
                     </div>
                 </div>
             </div>
@@ -414,42 +374,46 @@
 
             <div class="section-title">Booking Terdekat</div>
             <div id="bookingListContainer">
-                <div class="booking-box">
+                <div class="booking-box" id="b-default1">
                     <div>
                         <div class="client-name">Sinta Melati</div>
-                        <div class="client-service">Makeup Resepsi • 15 Okt 2026</div>
+                        <div class="client-service">Paket Akad + Resepsi • 15 Okt 2026<br><small>Catatan: Hijab do Sunda, kulit kering.</small></div>
                     </div>
-                    <div class="status-badge progress">Pending DP</div>
+                    <div class="right-actions">
+                        <div class="status-badge progress">Pending Pelunasan</div>
+                        <button class="btn-delete-item" onclick="deleteItem('b-default1')">Hapus</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- HALAMAN 2: KLIEN -->
         <div id="pageKlien" class="page-content">
             <div class="section-title">Semua Data Klien Studio</div>
             <div id="clientListContainer">
-                <div class="booking-box">
+                <div class="booking-box" id="c-default1">
                     <div>
                         <div class="client-name">Sinta Melati</div>
-                        <div class="client-service">Makeup Resepsi • 15 Okt 2026 (DP: Rp 1.500.000)</div>
+                        <div class="client-service">Paket Akad + Resepsi • 15 Okt 2026<br>DP Masuk: Rp 1.500.000</div>
                     </div>
-                    <div class="status-badge progress">Pending DP</div>
+                    <div class="right-actions">
+                        <div class="status-badge progress">DP Terbayar</div>
+                        <button class="btn-delete-item" onclick="deleteItem('c-default1')">Hapus</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- HALAMAN 3: KEUANGAN -->
         <div id="pageKeuangan" class="page-content">
             <div class="omzet-card" style="background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);">
                 <p>Arus Kas Masuk - Keluar</p>
-                <h1 id="netProfitDisplay">Rp 48.985.000</h1>
+                <h1 id="netProfitDisplay">Rp 4.000.000</h1>
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <h3 id="totalMasukDisplay">Rp 51.185.000</h3>
+                        <h3 id="totalMasukDisplay">Rp 4.500.000</h3>
                         <span>Uang Masuk</span>
                     </div>
                     <div class="stat-item">
-                        <h3 id="totalKeluarDisplay">Rp 700.000</h3>
+                        <h3 id="totalKeluarDisplay">Rp 500.000</h3>
                         <span>Uang Keluar</span>
                     </div>
                     <div class="stat-item">
@@ -463,32 +427,32 @@
 
             <div class="section-title">Riwayat Transaksi Keuangan</div>
             <div id="financeListContainer">
-                <div class="booking-box">
+                <div class="booking-box" id="f-default1">
                     <div>
                         <div class="client-name">Beli Perlengkapan Makeup Baru</div>
-                        <div class="client-service">23 Jul 2026 • Kategori: Produk / Bahan</div>
+                        <div class="client-service">Baru saja • Kategori: Produk / Bahan</div>
                     </div>
-                    <div class="status-badge expense">- Rp 500.000</div>
+                    <div class="right-actions">
+                        <div class="status-badge expense">- Rp 500.000</div>
+                        <button class="btn-delete-item" onclick="deleteItem('f-default1')">Hapus</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- HALAMAN 4: INVOICE -->
         <div id="pageInvoice" class="page-content">
             <div class="section-title">Daftar Tagihan & Invoice Studio</div>
-            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Klik tombol "Kirim Tagihan" untuk menyalin format tagihan ke WhatsApp klien.</p>
             <div id="invoiceListContainer">
-                <div class="booking-box">
+                <div class="booking-box" id="i-default1">
                     <div>
                         <div class="client-name">Sinta Melati</div>
-                        <div class="client-service">Makeup Resepsi • DP Masuk: Rp 1.500.000</div>
+                        <div class="client-service">Paket Akad + Resepsi • DP: Rp 1.500.000</div>
                     </div>
-                    <div class="status-badge invoice" onclick="sendInvoice('Sinta Melati', 'Makeup Resepsi', 'Rp 1.500.000')">📤 Kirim Tagihan</div>
+                    <div class="status-badge invoice" onclick="openInvoicePreview('Sinta Melati', 'Paket Akad + Resepsi', '1.500.000', 'Pending Pelunasan')">📤 Detail Tagihan</div>
                 </div>
             </div>
         </div>
 
-        <!-- HALAMAN 5: PENGATURAN AKUN -->
         <div id="pageAkun" class="page-content">
             <div class="section-title">Pengaturan Profil Studio</div>
             
@@ -509,12 +473,11 @@
 
             <div class="settings-card">
                 <h4>Status Langganan Sistem</h4>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Paket Anda saat ini: <b>GenMUA Pro (Aktif)</b></p>
-                <button class="action-card-btn" style="background: #3D3532; margin-bottom: 0;" onclick="showToast('Sistem Anda sudah versi paling update!')">Periksa Pembaruan Sistem</button>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Status Akun: <b id="accountStatusText">FREE TRIAL (Limit 5 Project)</b></p>
+                <button class="action-card-btn" style="background: #3D3532; margin-bottom: 0;" onclick="activateProSimulation()">Simulasi Aktifkan Fitur PRO</button>
             </div>
         </div>
 
-        <!-- BOTTOM NAVIGATION (Lengkap 5 Menu Utama) -->
         <div class="bottom-nav">
             <button class="nav-item active" id="navBeranda" onclick="switchPage('beranda')">
                 <div>🏠</div>Beranda
@@ -533,7 +496,6 @@
             </button>
         </div>
 
-        <!-- MODAL FORM INPUT BOOKING BARU -->
         <div class="modal-overlay" id="bookingModal">
             <div class="modal-sheet">
                 <div class="modal-header">
@@ -546,7 +508,7 @@
                         <input type="text" id="clientNameInput" placeholder="Contoh: Rina & Rian" required>
                     </div>
                     <div class="form-group">
-                        <label>Jenis Layanan</label>
+                        <label>Jenis Layanan / Paket</label>
                         <select id="serviceInput">
                             <option value="Paket Akad Nikah Only">Paket Akad Nikah Only</option>
                             <option value="Paket Akad + Resepsi">Paket Akad + Resepsi</option>
@@ -558,15 +520,25 @@
                         <input type="date" id="dateInput" required>
                     </div>
                     <div class="form-group">
-                        <label>Nominal DP / Masuk (Rp)</label>
+                        <label>Status Pembayaran</label>
+                        <select id="paymentStatusInput">
+                            <option value="DP">Baru Bayar DP (Belum Lunas)</option>
+                            <option value="Lunas">Langsung Lunas (Full Payment)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nominal Uang Masuk (Rp)</label>
                         <input type="text" id="dpInput" placeholder="Contoh: 1.000.000" oninput="formatRupiah(this)" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Catatan Khusus Riasan</label>
+                        <textarea id="noteInput" placeholder="Contoh: Request adat Sunda hijab do, kulit klien kombinasi berminyak..."></textarea>
                     </div>
                     <button type="submit" class="submit-btn">Simpan Booking MUA</button>
                 </form>
             </div>
         </div>
 
-        <!-- MODAL FORM CATAT PENGELUARAN -->
         <div class="modal-overlay" id="expenseModal">
             <div class="modal-sheet">
                 <div class="modal-header">
@@ -595,77 +567,105 @@
                 </form>
             </div>
         </div>
+
+        <div class="modal-overlay" id="invoicePreviewModal">
+            <div class="modal-sheet">
+                <div class="modal-header">
+                    <h3>Rincian Informasi Tagihan</h3>
+                    <button class="close-modal" onclick="closeInvoicePreview()">✕</button>
+                </div>
+                <div class="invoice-preview-box" id="invoicePreviewText">
+                    </div>
+                <button class="submit-btn" style="background: #25D366;" id="whatsappSendBtn">📲 Kirim Rapi ke WhatsApp Klien</button>
+            </div>
+        </div>
     </div>
 
-    <!-- TOAST NOTIFIKASI -->
-    <div id="toast">✅ Berhasil!</div>
-
     <script>
-        let totalUangMasuk = 51185000;
-        let totalUangKeluar = 700000;
+        // Logika Status Paket Akun (Simulasi Database)
+        let isProAccount = false;
+        let totalProjectCount = 1; // Mulai dari 1 karena ada data bawaan default Sinta Melati
 
-        // URL Google Apps Script Anda (Tersambung Kembali)
+        let totalUangMasuk = 4500000;
+        let totalUangKeluar = 500000;
+
         const scriptURL = 'https://script.google.com/macros/s/AKfycbwOCy5DgoQta3XY8-Trj1qzJpAxUkqaD5DzaTGZ8uoaqrnIwMaQ0TTV2W-tU3vVaLIvkg/exec';
 
-        // FUNGSI NAVIGASI PINDAH HALAMAN
         function switchPage(pageKey) {
             const listPages = ['beranda', 'klien', 'keuangan', 'invoice', 'akun'];
-            
             listPages.forEach(p => {
-                // Konversi format huruf
-                const pageId = 'page' + p.charAt(0).toUpperCase() + p.slice(1);
-                const navId = 'nav' + p.charAt(0).toUpperCase() + p.slice(1);
-                
-                const elPage = document.getElementById(pageId);
-                const elNav = document.getElementById(navId);
-                
-                if (elPage) elPage.classList.remove('active');
-                if (elNav) elNav.classList.remove('active');
+                const pageEl = document.getElementById('page' + p.charAt(0).toUpperCase() + p.slice(1));
+                const navEl = document.getElementById('nav' + p.charAt(0).toUpperCase() + p.slice(1));
+                if (pageEl) pageEl.classList.remove('active');
+                if (navEl) navEl.classList.remove('active');
             });
-
-            // Aktifkan halaman yang dipilih
-            const targetPageId = 'page' + pageKey.charAt(0).toUpperCase() + pageKey.slice(1);
-            const targetNavId = 'nav' + pageKey.charAt(0).toUpperCase() + pageKey.slice(1);
-
-            const activePage = document.getElementById(targetPageId);
-            const activeNav = document.getElementById(targetNavId);
-
-            if (activePage) activePage.classList.add('active');
-            if (activeNav) activeNav.classList.add('active');
+            document.getElementById('page' + pageKey.charAt(0).toUpperCase() + pageKey.slice(1)).classList.add('active');
+            document.getElementById('nav' + pageKey.charAt(0).toUpperCase() + pageKey.slice(1)).classList.add('active');
         }
 
-        // FORMAT RUPIAH OTOMATIS
         function formatRupiah(input) {
             let value = input.value.replace(/[^,\d]/g, '').toString();
             let split = value.split(',');
             let sisa = split[0].length % 3;
             let rupiah = split[0].substr(0, sisa);
             let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-
-            if (ribuan) {
-                let separator = sisa ? '.' : '';
-                rupiah += separator + ribuan.join('.');
-            }
+            if (ribuan) { rupiah += (sisa ? '.' : '') + ribuan.join('.'); }
             input.value = rupiah;
         }
 
-        // NOTIFIKASI TOAST
         function showToast(message) {
             var toast = document.getElementById("toast");
             toast.innerText = message;
             toast.className = "show";
-            setTimeout(function(){ 
-                toast.className = toast.className.replace("show", ""); 
-            }, 2500);
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 2500);
         }
 
-        // BUKA TUTUP MODAL
-        function openBookingModal() { document.getElementById('bookingModal').classList.add('active'); }
+        function openBookingModal() { 
+            // CEK LIMIT 5 PROJECT JIKA BUKAN AKUN PRO
+            if (!isProAccount && totalProjectCount >= 5) {
+                alert("🔒 Batas Trial Gratis Habis!\n\nAnda sudah mencapai limit 5 project riasan. Silakan upgrade ke versi PRO untuk memasukkan data tanpa batas.");
+                return;
+            }
+            document.getElementById('bookingModal').classList.add('active'); 
+        }
         function closeBookingModal() { document.getElementById('bookingModal').classList.remove('active'); }
+        document.getElementById('bookingModal').addEventListener('click', function(e) { if(e.target===this) closeBookingModal(); });
+
         function openExpenseModal() { document.getElementById('expenseModal').classList.add('active'); }
         function closeExpenseModal() { document.getElementById('expenseModal').classList.remove('active'); }
+        function closeInvoicePreview() { document.getElementById('invoicePreviewModal').classList.remove('active'); }
 
-        // SIMPAN PENGATURAN PROFIL STUDIO
+        // FUNGSI SIMULASI UPGRADE PRO VIA SCREEN AKUN
+        function activateProSimulation() {
+            isProAccount = true;
+            document.getElementById('headerOwnerBadge').innerText = "GENMUA PRO";
+            document.getElementById('headerOwnerBadge').style.background = "#E8F5E9";
+            document.getElementById('headerOwnerBadge').style.color = "#2E7D32";
+            document.getElementById('accountStatusText').innerText = "PRO ACCOUNT (Aktif Tanpa Batas)";
+            showToast("🚀 Selamat! Akun Anda berhasil diupgrade ke versi PRO.");
+        }
+
+        // FUNGSI HAPUS ITEM (UI ONLY - AMAN UNTUK GOOGLE SHEET)
+        function deleteItem(elementId) {
+            if(confirm("Apakah Anda yakin ingin menghapus catatan baris ini dari tampilan?")) {
+                const item = document.getElementById(elementId);
+                if(item) { item.remove(); showToast("🗑️ Baris berhasil dihapus dari dasbor."); }
+            }
+        }
+
+        // POPUP INVOICE KECIL SEBELUM KIRIM
+        function openInvoicePreview(name, service, money, statusKey) {
+            const statusLabel = statusKey === 'Lunas' ? 'Lunas (Full Payment)' : 'Pending Pelunasan';
+            const templateText = `✨ *INVOICE NELA MUA STUDIO* ✨\n\n📌 *Nama Klien:* ${name}\n💄 *Layanan:* ${service}\n💵 *Dana Masuk:* Rp ${money}\n📊 *Status Nota:* ${statusLabel}\n\nTerima kasih telah mempercayakan hari bahagia Anda pada layanan makeup kami! 🙏`;
+            
+            document.getElementById('invoicePreviewText').innerText = templateText;
+            document.getElementById('whatsappSendBtn').onclick = function() {
+                window.open(`https://wa.me/?text=${encodeURIComponent(templateText)}`, '_blank');
+                closeInvoicePreview();
+            };
+            document.getElementById('invoicePreviewModal').classList.add('active');
+        }
+
         function handleSettingsSubmit(event) {
             event.preventDefault();
             const newStudioName = document.getElementById('settingStudioName').value;
@@ -673,59 +673,68 @@
             showToast("✨ Profil studio berhasil diperbarui!");
         }
 
-        // KIRIM INVOICE VIA WHATSAPP
-        function sendInvoice(name, service, dp) {
-            const text = `Halo Kak *${name}*, berikut rincian tagihan/booking layanan studio kami:\n\n✨ *Layanan:* ${service}\n💳 *DP Masuk:* Rp ${dp}\n📌 *Status:* Pending Pelunasan\n\nTerima kasih! 🙏`;
-            const encodedText = encodeURIComponent(text);
-            window.open(`https://wa.me/?text=${encodedText}`, '_blank');
-        }
-
-        // SUBMIT BOOKING BARU (KE DASHBOARD & GOOGLE SHEETS)
+        // SUBMIT BOOKING BARU
         function handleFormSubmit(event) {
             event.preventDefault();
+            
             const name = document.getElementById('clientNameInput').value;
             const service = document.getElementById('serviceInput').value;
             const date = document.getElementById('dateInput').value;
+            const statusPay = document.getElementById('paymentStatusInput').value;
             const dp = document.getElementById('dpInput').value;
+            const note = document.getElementById('noteInput').value || 'Tidak ada catatan';
 
-            // 1. TUTUP MODAL DAN RESET FORM SEKETIKA
+            const uniqueId = 'item-' + Date.now();
+
             closeBookingModal();
             document.getElementById('bookingForm').reset();
 
-            // 2. RENDERING DISPLAY BERANDA
+            const statusBadgeLabel = statusPay === 'Lunas' ? 'Lunas' : 'Pending Pelunasan';
+            const statusBadgeClass = statusPay === 'Lunas' ? 'done' : 'progress';
+
+            // 1. RENDER BERANDA
             document.getElementById('bookingListContainer').insertAdjacentHTML('afterbegin', `
-                <div class="booking-box">
+                <div class="booking-box" id="b-${uniqueId}">
                     <div>
                         <div class="client-name">${name}</div>
-                        <div class="client-service">${service} • ${date}</div>
+                        <div class="client-service">${service} • ${date}<br><small>Catatan: ${note}</small></div>
                     </div>
-                    <div class="status-badge progress">Pending DP</div>
+                    <div class="right-actions">
+                        <div class="status-badge ${statusBadgeClass}">${statusBadgeLabel}</div>
+                        <button class="btn-delete-item" onclick="deleteItem('b-${uniqueId}')">Hapus</button>
+                    </div>
                 </div>
             `);
 
-            // RENDERING MENU KLIEN
+            // 2. RENDER KLIEN
             document.getElementById('clientListContainer').insertAdjacentHTML('afterbegin', `
-                <div class="booking-box">
+                <div class="booking-box" id="c-${uniqueId}">
                     <div>
                         <div class="client-name">${name}</div>
-                        <div class="client-service">${service} • ${date} (DP: Rp ${dp})</div>
+                        <div class="client-service">${service} • ${date}<br>Dana Masuk: Rp ${dp}</div>
                     </div>
-                    <div class="status-badge progress">Pending DP</div>
+                    <div class="right-actions">
+                        <div class="status-badge ${statusBadgeClass}">${statusPay === 'Lunas' ? 'Lunas' : 'DP Terbayar'}</div>
+                        <button class="btn-delete-item" onclick="deleteItem('c-${uniqueId}')">Hapus</button>
+                    </div>
                 </div>
             `);
 
-            // RENDERING MENU INVOICE
+            // 3. RENDER INVOICE
             document.getElementById('invoiceListContainer').insertAdjacentHTML('afterbegin', `
-                <div class="booking-box">
+                <div class="booking-box" id="i-${uniqueId}">
                     <div>
                         <div class="client-name">${name}</div>
-                        <div class="client-service">${service} • DP Masuk: Rp ${dp}</div>
+                        <div class="client-service">${service} • Dana Masuk: Rp ${dp}</div>
                     </div>
-                    <div class="status-badge invoice" onclick="sendInvoice('${name}', '${service}', '${dp}')">📤 Kirim Tagihan</div>
+                    <div class="status-badge invoice" onclick="openInvoicePreview('${name}', '${service}', '${dp}', '${statusPay}')">📤 Detail Tagihan</div>
                 </div>
             `);
 
-            // UPDATE ANGKA STATISTIK
+            // TAMBAH COUNTER PROJECT LIMIT
+            totalProjectCount++;
+
+            // UPDATE STATISTIK KEUANGAN
             let rawDpNumber = parseInt(dp.replace(/\./g, '')) || 0;
             totalUangMasuk += rawDpNumber;
             updateFinancialDisplay();
@@ -733,18 +742,16 @@
             document.getElementById('countBooking').innerText = parseInt(document.getElementById('countBooking').innerText) + 1;
             document.getElementById('countKlien').innerText = parseInt(document.getElementById('countKlien').innerText) + 1;
 
-            showToast("✨ Data berhasil dicatat ke sistem studio!");
+            showToast("✨ Data riasan & pembukuan tercatat!");
 
-            // 3. KIRIM DATA KE GOOGLE SHEETS VIA APPS SCRIPT
-            const formData = { nama: name, layanan: service, tanggal: date, dp: dp };
+            // KIRIM KE GOOGLE SHEETS
+            const formData = { nama: name, layanan: service, tanggal: date, dp: dp, catatan: note, status: statusPay };
             fetch(scriptURL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
-            }).catch(error => {
-                console.error('Sinkronisasi Google Sheets error:', error);
-            });
+            }).catch(error => { console.error('Error Sync:', error); });
         }
 
         // SUBMIT PENGELUARAN BARU
@@ -753,6 +760,7 @@
             const desc = document.getElementById('expDescInput').value;
             const category = document.getElementById('expCategoryInput').value;
             const nominal = document.getElementById('expNominalInput').value;
+            const uniqueId = 'exp-' + Date.now();
 
             closeExpenseModal();
             document.getElementById('expenseForm').reset();
@@ -762,19 +770,21 @@
             updateFinancialDisplay();
 
             document.getElementById('financeListContainer').insertAdjacentHTML('afterbegin', `
-                <div class="booking-box">
+                <div class="booking-box" id="${uniqueId}">
                     <div>
                         <div class="client-name">${desc}</div>
                         <div class="client-service">Baru saja • Kategori: ${category}</div>
                     </div>
-                    <div class="status-badge expense">- Rp ${nominal}</div>
+                    <div class="right-actions">
+                        <div class="status-badge expense">- Rp ${nominal}</div>
+                        <button class="btn-delete-item" onclick="deleteItem('${uniqueId}')">Hapus</button>
+                    </div>
                 </div>
             `);
 
             showToast("💸 Pengeluaran studio dicatat!");
         }
 
-        // UPDATE TAMPILAN ANGKAKEUANGAN
         function updateFinancialDisplay() {
             let netProfit = totalUangMasuk - totalUangKeluar;
             document.getElementById('totalOmzetDisplay').innerText = "Rp " + totalUangMasuk.toLocaleString('id-ID');
