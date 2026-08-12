@@ -281,6 +281,33 @@
         }
 
         .submit-btn:hover { background: var(--accent); }
+
+        /* TOAST NOTIFIKASI ELEGAN (Menggantikan alert browser) */
+        #toast {
+            visibility: hidden;
+            min-width: 220px;
+            background-color: #3D3532;
+            color: #fff;
+            text-align: center;
+            border-radius: 12px;
+            padding: 12px 16px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
     </style>
 </head>
 <body>
@@ -318,20 +345,19 @@
         <!-- Menu Cepat -->
         <div class="section-title">Akses Cepat</div>
         <div class="quick-access">
-            <div class="menu-btn" onclick="alert('Fitur Kelola Klien')">
+            <div class="menu-btn" onclick="showToast('Fitur Kelola Klien segera hadir')">
                 <div class="menu-icon">👥</div>
                 <span>Klien</span>
             </div>
-            <!-- Tombol Booking dihubungkan ke fungsi buka form -->
             <div class="menu-btn" onclick="openBookingModal()">
                 <div class="menu-icon">📅</div>
                 <span>Booking</span>
             </div>
-            <div class="menu-btn" onclick="alert('Fitur Laporan Keuangan')">
+            <div class="menu-btn" onclick="showToast('Fitur Laporan Keuangan segera hadir')">
                 <div class="menu-icon">💰</div>
                 <span>Keuangan</span>
             </div>
-            <div class="menu-btn" onclick="alert('Fitur Desain Invoice PDF')">
+            <div class="menu-btn" onclick="showToast('Fitur Desain Invoice PDF segera hadir')">
                 <div class="menu-icon">📄</div>
                 <span>Invoice</span>
             </div>
@@ -357,18 +383,18 @@
             <a href="#" class="nav-item" onclick="openBookingModal()">
                 <div>📅</div>Booking
             </a>
-            <a href="#" class="nav-item" onclick="alert('Buka Kalender Jadwal')">
+            <a href="#" class="nav-item" onclick="showToast('Buka Kalender Jadwal')">
                 <div>🗓️</div>Kalender
             </a>
-            <a href="#" class="nav-item" onclick="alert('Daftar Klien')">
+            <a href="#" class="nav-item" onclick="showToast('Daftar Klien')">
                 <div>👥</div>Klien
             </a>
-            <a href="#" class="nav-item" onclick="alert('Pengaturan Akun')">
+            <a href="#" class="nav-item" onclick="showToast('Pengaturan Akun')">
                 <div>⚙️</div>Akun
             </a>
         </div>
 
-        <!-- MODAL FORM INPUT BOOKING (Tersembunyi Awalnya) -->
+        <!-- MODAL FORM INPUT BOOKING BARU -->
         <div class="modal-overlay" id="bookingModal">
             <div class="modal-sheet">
                 <div class="modal-header">
@@ -394,14 +420,45 @@
                     </div>
                     <div class="form-group">
                         <label>Nominal DP / Masuk (Rp)</label>
-                        <input type="number" id="dpInput" placeholder="Contoh: 1000000" required>
+                        <!-- Input otomatis ada titik ribet, tapi nilai aslinya bersih tanpa titik saat dikirim -->
+                        <input type="text" id="dpInput" placeholder="Contoh: 1.000.000" oninput="formatRupiah(this)" required>
                     </div>
                     <button type="submit" class="submit-btn">Simpan Booking MUA</button>
                 </form>
             </div>
         </div>
     </div>
-<script>
+
+    <!-- TOAST NOTIFIKASI BERSIH TANPA DOMAIN GITHUB -->
+    <div id="toast">✅ Data berhasil disimpan ke Studio!</div>
+
+    <script>
+        // Fungsi Memformat Angka Menjadi Titik Otomatis (Ribuan)
+        function formatRupiah(input) {
+            let value = input.value.replace(/[^,\d]/g, '').toString();
+            let split = value.split(',');
+            let sisa = split[0].length % 3;
+            let rupiah = split[0].substr(0, sisa);
+            let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+
+            input.value = rupiah;
+        }
+
+        // Fungsi Toast Notification (Ganti Alert Browser)
+        function showToast(message) {
+            var toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.className = "show";
+            setTimeout(function(){ 
+                toast.className = toast.className.replace("show", ""); 
+            }, 2500);
+        }
+
         // Fungsi Membuka Modal Form
         function openBookingModal() {
             document.getElementById('bookingModal').classList.add('active');
@@ -412,14 +469,14 @@
             document.getElementById('bookingModal').classList.remove('active');
         }
 
-        // Fungsi Submit Super Cepat (Tanpa Delay)
+        // Fungsi Submit Form Utama
         function handleFormSubmit(event) {
             event.preventDefault();
             
             const name = document.getElementById('clientNameInput').value;
             const service = document.getElementById('serviceInput').value;
             const date = document.getElementById('dateInput').value;
-            const dp = document.getElementById('dpInput').value;
+            const dp = document.getElementById('dpInput').value; // Sudah ada titik otomatis
 
             // URL Apps Script Anda
             const scriptURL = 'https://script.google.com/macros/s/AKfycbwOCy5DgoQta3XY8-Trj1qzJpAxUkqaD5DzaTGZ8uoaqrnIwMaQ0TTV2W-tU3vVaLIvkg/exec';
@@ -431,7 +488,7 @@
                 dp: dp
             };
 
-            // 1. TUTUP MODAL & RESET FORM SEKETIKA (Tanpa menunggu loading)
+            // 1. TUTUP MODAL & RESET FORM SEKETIKA
             closeBookingModal();
             document.getElementById('bookingForm').reset();
 
@@ -455,10 +512,10 @@
             let currentKlien = parseInt(document.getElementById('countKlien').innerText);
             document.getElementById('countKlien').innerText = currentKlien + 1;
 
-            // Berikan notifikasi kilat yang tidak memblokir layar
-            console.log("Data berhasil dimasukkan ke antrean layar.");
+            // Tampilkan Toast Kustom yang Bersih (Tanpa Domain GitHub)
+            showToast("✨ Data berhasil tersimpan di sistem studio!");
 
-            // 3. KIRIM KE GOOGLE SHEETS DI LATAR BELAKANG (Background Tanpa Await)
+            // 3. KIRIM KE GOOGLE SHEETS DI LATAR BELAKANG
             fetch(scriptURL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -469,6 +526,5 @@
             });
         }
     </script>
-    
-       </body>
+</body>
 </html>
