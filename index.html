@@ -500,4 +500,249 @@
                 </form>
             </div>
 
-            <div class
+            <div class="settings-card">
+                <h4>Status Langganan Sistem</h4>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Paket Anda saat ini: <b>GenMUA Pro (Aktif)</b></p>
+                <button class="action-card-btn" style="background: #3D3532; margin-bottom: 0;" onclick="showToast('Sistem Anda sudah versi paling update!')">Periksa Pembaruan Sistem</button>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <button class="nav-item active" id="navBeranda" onclick="switchPage('beranda')">
+                <div>🏠</div>Beranda
+            </button>
+            <button class="nav-item" onclick="openBookingModal()">
+                <div>📅</div>Booking
+            </button>
+            <button class="nav-item" id="navKeuangan" onclick="switchPage('keuangan')">
+                <div>💰</div>Keuangan
+            </button>
+            <button class="nav-item" id="navKlien" onclick="switchPage('klien')">
+                <div>👥</div>Klien
+            </button>
+            <button class="nav-item" id="navAkun" onclick="switchPage('akun')">
+                <div>⚙️</div>Akun
+            </button>
+        </div>
+
+        <div class="modal-overlay" id="bookingModal">
+            <div class="modal-sheet">
+                <div class="modal-header">
+                    <h3>Tambah Booking Klien Baru</h3>
+                    <button class="close-modal" onclick="closeBookingModal()">✕</button>
+                </div>
+                <form id="bookingForm" onsubmit="handleFormSubmit(event)">
+                    <div class="form-group">
+                        <label>Nama Pengantin / Klien</label>
+                        <input type="text" id="clientNameInput" placeholder="Contoh: Rina & Rian" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jenis Layanan</label>
+                        <select id="serviceInput">
+                            <option value="Paket Akad Nikah Only">Paket Akad Nikah Only</option>
+                            <option value="Paket Akad + Resepsi">Paket Akad + Resepsi</option>
+                            <option value="Makeup Wisuda / Event">Makeup Wisuda / Event</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Acara</label>
+                        <input type="date" id="dateInput" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nominal DP / Masuk (Rp)</label>
+                        <input type="text" id="dpInput" placeholder="Contoh: 1.000.000" oninput="formatRupiah(this)" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Simpan Booking MUA</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="expenseModal">
+            <div class="modal-sheet">
+                <div class="modal-header">
+                    <h3>Catat Pengeluaran Studio</h3>
+                    <button class="close-modal" onclick="closeExpenseModal()">✕</button>
+                </div>
+                <form id="expenseForm" onsubmit="handleExpenseSubmit(event)">
+                    <div class="form-group">
+                        <label>Keterangan Pengeluaran</label>
+                        <input type="text" id="expDescInput" placeholder="Contoh: Transport Lokasi / Beli Ampoule" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kategori</label>
+                        <select id="expCategoryInput">
+                            <option value="Produk / Bahan">Produk / Bahan Makeup</option>
+                            <option value="Transport">Transport & Parkir</option>
+                            <option value="Honor Tim">Honor Asisten / Tim</option>
+                            <option value="Lainnya">Biaya Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nominal Keluar (Rp)</label>
+                        <input type="text" id="expNominalInput" placeholder="Contoh: 150.000" oninput="formatRupiah(this)" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Simpan Pengeluaran</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">✅ Berhasil!</div>
+
+    <script>
+        let totalUangMasuk = 51185000;
+        let totalUangKeluar = 700000;
+
+        // Berpindah Halaman Antar Menu (Beranda, Klien, Keuangan, Invoice, Akun)
+        function switchPage(page) {
+            ['Beranda', 'Klien', 'Keuangan', 'Invoice', 'Akun'].forEach(p => {
+                const pageEl = document.getElementById('page' + p);
+                const navEl = document.getElementById('nav' + p);
+                if(pageEl) pageEl.classList.remove('active');
+                if(navEl) navEl.classList.remove('active');
+            });
+
+            const targetPage = document.getElementById('page' + page.charAt(0).toUpperCase() + page.slice(1));
+            const targetNav = document.getElementById('nav' + page.charAt(0).toUpperCase() + page.slice(1));
+            
+            if(targetPage) targetPage.classList.add('active');
+            if(targetNav) targetNav.classList.add('active');
+        }
+
+        function formatRupiah(input) {
+            let value = input.value.replace(/[^,\d]/g, '').toString();
+            let split = value.split(',');
+            let sisa = split[0].length % 3;
+            let rupiah = split[0].substr(0, sisa);
+            let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+            input.value = rupiah;
+        }
+
+        function showToast(message) {
+            var toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.className = "show";
+            setTimeout(function(){ 
+                toast.className = toast.className.replace("show", ""); 
+            }, 2500);
+        }
+
+        function openBookingModal() { document.getElementById('bookingModal').classList.add('active'); }
+        function closeBookingModal() { document.getElementById('bookingModal').classList.remove('active'); }
+        function openExpenseModal() { document.getElementById('expenseModal').classList.add('active'); }
+        function closeExpenseModal() { document.getElementById('expenseModal').classList.remove('active'); }
+
+        // Simpan Perubahan Profil Studio (Menu Akun)
+        function handleSettingsSubmit(event) {
+            event.preventDefault();
+            const newStudioName = document.getElementById('settingStudioName').value;
+            const newOwnerName = document.getElementById('settingOwnerName').value;
+
+            // Update Header secara langsung
+            document.getElementById('headerStudioName').innerText = newStudioName;
+            
+            showToast("✨ Profil studio berhasil diperbarui!");
+        }
+
+        // Fungsi Kirim Invoice Otomatis ke WhatsApp
+        function sendInvoice(name, service, dp) {
+            const text = `Halo Kak *${name}*, berikut rincian tagihan/booking layanan studio kami:\n\n✨ *Layanan:* ${service}\n💳 *DP Masuk:* Rp ${dp}\n📌 *Status:* Pending Pelunasan\n\nTerima kasih telah mempercayakan momen spesial Anda bersama kami! 🙏`;
+            const encodedText = encodeURIComponent(text);
+            window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+        }
+
+        // Submit Booking
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            const name = document.getElementById('clientNameInput').value;
+            const service = document.getElementById('serviceInput').value;
+            const date = document.getElementById('dateInput').value;
+            const dp = document.getElementById('dpInput').value;
+
+            let rawDpNumber = parseInt(dp.replace(/\./g, '')) || 0;
+            totalUangMasuk += rawDpNumber;
+            updateFinancialDisplay();
+
+            closeBookingModal();
+            document.getElementById('bookingForm').reset();
+
+            // Render Beranda
+            document.getElementById('bookingListContainer').insertAdjacentHTML('afterbegin', `
+                <div class="booking-box">
+                    <div>
+                        <div class="client-name">${name}</div>
+                        <div class="client-service">${service} • ${date}</div>
+                    </div>
+                    <div class="status-badge progress">Pending DP</div>
+                </div>
+            `);
+
+            // Render Klien
+            document.getElementById('clientListContainer').insertAdjacentHTML('afterbegin', `
+                <div class="booking-box">
+                    <div>
+                        <div class="client-name">${name}</div>
+                        <div class="client-service">${service} • ${date} (DP: Rp ${dp})</div>
+                    </div>
+                    <div class="status-badge progress">Pending DP</div>
+                </div>
+            `);
+
+            // Render Invoice
+            document.getElementById('invoiceListContainer').insertAdjacentHTML('afterbegin', `
+                <div class="booking-box">
+                    <div>
+                        <div class="client-name">${name}</div>
+                        <div class="client-service">${service} • DP Masuk: Rp ${dp}</div>
+                    </div>
+                    <div class="status-badge invoice" onclick="sendInvoice('${name}', '${service}', '${dp}')">📤 Kirim Tagihan</div>
+                </div>
+            `);
+
+            document.getElementById('countBooking').innerText = parseInt(document.getElementById('countBooking').innerText) + 1;
+            document.getElementById('countKlien').innerText = parseInt(document.getElementById('countKlien').innerText) + 1;
+
+            showToast("✨ Booking, Keuangan & Invoice siap!");
+        }
+
+        function handleExpenseSubmit(event) {
+            event.preventDefault();
+            const desc = document.getElementById('expDescInput').value;
+            const category = document.getElementById('expCategoryInput').value;
+            const nominal = document.getElementById('expNominalInput').value;
+
+            let rawNominal = parseInt(nominal.replace(/\./g, '')) || 0;
+            totalUangKeluar += rawNominal;
+            updateFinancialDisplay();
+
+            closeExpenseModal();
+            document.getElementById('expenseForm').reset();
+
+            document.getElementById('financeListContainer').insertAdjacentHTML('afterbegin', `
+                <div class="booking-box">
+                    <div>
+                        <div class="client-name">${desc}</div>
+                        <div class="client-service">Baru saja • Kategori: ${category}</div>
+                    </div>
+                    <div class="status-badge expense">- Rp ${nominal}</div>
+                </div>
+            `);
+
+            showToast("💸 Pengeluaran studio dicatat!");
+        }
+
+        function updateFinancialDisplay() {
+            let netProfit = totalUangMasuk - totalUangKeluar;
+            document.getElementById('totalOmzetDisplay').innerText = "Rp " + totalUangMasuk.toLocaleString('id-ID');
+            document.getElementById('netProfitDisplay').innerText = "Rp " + netProfit.toLocaleString('id-ID');
+            document.getElementById('totalMasukDisplay').innerText = "Rp " + totalUangMasuk.toLocaleString('id-ID');
+            document.getElementById('totalKeluarDisplay').innerText = "Rp " + totalUangKeluar.toLocaleString('id-ID');
+        }
+    </script>
+</body>
+</html>
