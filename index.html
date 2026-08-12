@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bellagenda MUA | Studio Dashboard</title>
+    <title>GenMUA | Studio Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -414,39 +414,64 @@
         }
 
         // Simulasi Aksi Saat Form Disubmit (Nanti diganti Google Apps Script)
-        function handleFormSubmit(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('clientNameInput').value;
-            const service = document.getElementById('serviceInput').value;
-            const date = document.getElementById('dateInput').value;
-            
-            // Tambahkan data secara instan ke daftar tampilan bawah (Simulasi)
-            const container = document.getElementById('bookingListContainer');
-            const newBox = document.createElement('div');
-            newBox.className = 'booking-box';
-            newBox.innerHTML = `
-                <div>
-                    <div class="client-name">${name}</div>
-                    <div class="client-service">${service} • ${date}</div>
-                </div>
-                <div class="status-badge progress">Pending DP</div>
-            `;
-            container.prepend(newBox);
+       async function handleFormSubmit(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('clientNameInput').value;
+    const service = document.getElementById('serviceInput').value;
+    const date = document.getElementById('dateInput').value;
+    const dp = document.getElementById('dpInput').value;
 
-            // Update angka statistik total booking secara dinamis
-            let currentBooking = parseInt(document.getElementById('countBooking').innerText);
-            document.getElementById('countBooking').innerText = currentBooking + 1;
+    // Ganti URL di bawah ini dengan Web App URL dari Google Apps Script Anda
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwOCy5DgoQta3XY8-Trj1qzJpAxUkqaD5DzaTGZ8uoaqrnIwMaQ0TTV2W-tU3vVaLIvkg/exec';
 
-            let currentKlien = parseInt(document.getElementById('countKlien').innerText);
-            document.getElementById('countKlien').innerText = currentKlien + 1;
+    const formData = {
+        nama: name,
+        layanan: service,
+        tanggal: date,
+        dp: dp
+    };
 
-            // Tutup modal dan reset form
-            closeBookingModal();
-            document.getElementById('bookingForm').reset();
-            
-            alert('Berhasil! Data booking klien baru telah tercatat di sistem studio.');
-        }
+    try {
+        // Kirim data ke Google Sheets secara background
+        await fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        // Update tampilan secara instan (Frontend)
+        const container = document.getElementById('bookingListContainer');
+        const newBox = document.createElement('div');
+        newBox.className = 'booking-box';
+        newBox.innerHTML = `
+            <div>
+                <div class="client-name">${name}</div>
+                <div class="client-service">${service} • ${date}</div>
+            </div>
+            <div class="status-badge progress">Pending DP</div>
+        `;
+        container.prepend(newBox);
+
+        // Update statistik angka
+        let currentBooking = parseInt(document.getElementById('countBooking').innerText);
+        document.getElementById('countBooking').innerText = currentBooking + 1;
+
+        let currentKlien = parseInt(document.getElementById('countKlien').innerText);
+        document.getElementById('countKlien').innerText = currentKlien + 1;
+
+        // Tutup modal dan reset form
+        closeBookingModal();
+        document.getElementById('bookingForm').reset();
+        
+        alert('Berhasil! Data klien tersimpan otomatis di Google Sheets Studio.');
+
+    } catch (error) {
+        console.error('Error!', error.message);
+        alert('Gagal menyimpan data, silakan coba lagi.');
+    }
+}
     </script>
 </body>
 </html>
