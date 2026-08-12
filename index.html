@@ -401,7 +401,6 @@
             </div>
         </div>
     </div>
-
 <script>
         // Fungsi Membuka Modal Form
         function openBookingModal() {
@@ -413,8 +412,8 @@
             document.getElementById('bookingModal').classList.remove('active');
         }
 
-        // Fungsi Submit yang Diperbaiki agar Tampilan Langsung Update
-        async function handleFormSubmit(event) {
+        // Fungsi Submit Super Cepat (Tanpa Delay)
+        function handleFormSubmit(event) {
             event.preventDefault();
             
             const name = document.getElementById('clientNameInput').value;
@@ -432,8 +431,11 @@
                 dp: dp
             };
 
-            // 1. UPDATE TAMPILAN LAYAR TERLEBIH DAHULU (Optimistic UI Update)
-            // Ini membuat layar langsung merespons tanpa menunggu jeda internet
+            // 1. TUTUP MODAL & RESET FORM SEKETIKA (Tanpa menunggu loading)
+            closeBookingModal();
+            document.getElementById('bookingForm').reset();
+
+            // 2. UPDATE TAMPILAN LAYAR SECARA INSTAN
             const container = document.getElementById('bookingListContainer');
             const newBox = document.createElement('div');
             newBox.className = 'booking-box';
@@ -446,30 +448,25 @@
             `;
             container.prepend(newBox);
 
-            // Update angka statistik di layar secara instan
+            // Update angka statistik di layar
             let currentBooking = parseInt(document.getElementById('countBooking').innerText);
             document.getElementById('countBooking').innerText = currentBooking + 1;
 
             let currentKlien = parseInt(document.getElementById('countKlien').innerText);
             document.getElementById('countKlien').innerText = currentKlien + 1;
 
-            // Tutup modal dan reset form seketika agar terasa cepat
-            closeBookingModal();
-            document.getElementById('bookingForm').reset();
-            
-            alert('Berhasil! Data klien tercatat di sistem studio.');
+            // Berikan notifikasi kilat yang tidak memblokir layar
+            console.log("Data berhasil dimasukkan ke antrean layar.");
 
-            // 2. KIRIM DATA KE GOOGLE SHEETS DI LATAR BELAKANG (Background Sync)
-            try {
-                await fetch(scriptURL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-            } catch (error) {
-                console.error('Sinkronisasi latar belakang:', error);
-            }
+            // 3. KIRIM KE GOOGLE SHEETS DI LATAR BELAKANG (Background Tanpa Await)
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            }).catch(error => {
+                console.error('Gagal sinkronisasi background:', error);
+            });
         }
     </script>
     
