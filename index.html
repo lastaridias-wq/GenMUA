@@ -362,6 +362,7 @@
 <body>
 
     <div class="app-container">
+        <!-- Header Dinamis -->
         <div class="app-header">
             <div class="studio-info">
                 <h2 id="headerStudioName">Nela Mua Studio</h2>
@@ -370,6 +371,7 @@
             <div class="owner-badge" id="headerOwnerBadge">Owner</div>
         </div>
 
+        <!-- HALAMAN 1: BERANDA -->
         <div id="pageBeranda" class="page-content active">
             <div class="omzet-card">
                 <p>Total Pendapatan Bersih</p>
@@ -422,6 +424,7 @@
             </div>
         </div>
 
+        <!-- HALAMAN 2: KLIEN -->
         <div id="pageKlien" class="page-content">
             <div class="section-title">Semua Data Klien Studio</div>
             <div id="clientListContainer">
@@ -435,6 +438,7 @@
             </div>
         </div>
 
+        <!-- HALAMAN 3: KEUANGAN -->
         <div id="pageKeuangan" class="page-content">
             <div class="omzet-card" style="background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);">
                 <p>Arus Kas Masuk - Keluar</p>
@@ -469,6 +473,7 @@
             </div>
         </div>
 
+        <!-- HALAMAN 4: INVOICE -->
         <div id="pageInvoice" class="page-content">
             <div class="section-title">Daftar Tagihan & Invoice Studio</div>
             <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Klik tombol "Kirim Tagihan" untuk menyalin format tagihan ke WhatsApp klien.</p>
@@ -483,6 +488,7 @@
             </div>
         </div>
 
+        <!-- HALAMAN 5: PENGATURAN AKUN -->
         <div id="pageAkun" class="page-content">
             <div class="section-title">Pengaturan Profil Studio</div>
             
@@ -508,6 +514,7 @@
             </div>
         </div>
 
+        <!-- BOTTOM NAVIGATION (Lengkap 5 Menu Utama) -->
         <div class="bottom-nav">
             <button class="nav-item active" id="navBeranda" onclick="switchPage('beranda')">
                 <div>🏠</div>Beranda
@@ -526,6 +533,7 @@
             </button>
         </div>
 
+        <!-- MODAL FORM INPUT BOOKING BARU -->
         <div class="modal-overlay" id="bookingModal">
             <div class="modal-sheet">
                 <div class="modal-header">
@@ -558,6 +566,7 @@
             </div>
         </div>
 
+        <!-- MODAL FORM CATAT PENGELUARAN -->
         <div class="modal-overlay" id="expenseModal">
             <div class="modal-sheet">
                 <div class="modal-header">
@@ -588,32 +597,44 @@
         </div>
     </div>
 
+    <!-- TOAST NOTIFIKASI -->
     <div id="toast">✅ Berhasil!</div>
 
     <script>
         let totalUangMasuk = 51185000;
         let totalUangKeluar = 700000;
 
-        // Fungsi Navigasi Menu Antar Halaman yang Disempurnakan
-        function switchPage(page) {
-            const pages = ['Beranda', 'Klien', 'Keuangan', 'Invoice', 'Akun'];
+        // URL Google Apps Script Anda (Tersambung Kembali)
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwOCy5DgoQta3XY8-Trj1qzJpAxUkqaD5DzaTGZ8uoaqrnIwMaQ0TTV2W-tU3vVaLIvkg/exec';
+
+        // FUNGSI NAVIGASI PINDAH HALAMAN
+        function switchPage(pageKey) {
+            const listPages = ['beranda', 'klien', 'keuangan', 'invoice', 'akun'];
             
-            pages.forEach(p => {
-                const pageEl = document.getElementById('page' + p);
-                const navEl = document.getElementById('nav' + p);
-                if (pageEl) pageEl.classList.remove('active');
-                if (navEl) navEl.classList.remove('active');
+            listPages.forEach(p => {
+                // Konversi format huruf
+                const pageId = 'page' + p.charAt(0).toUpperCase() + p.slice(1);
+                const navId = 'nav' + p.charAt(0).toUpperCase() + p.slice(1);
+                
+                const elPage = document.getElementById(pageId);
+                const elNav = document.getElementById(navId);
+                
+                if (elPage) elPage.classList.remove('active');
+                if (elNav) elNav.classList.remove('active');
             });
 
-            const targetPageName = page.charAt(0).toUpperCase() + page.slice(1);
-            const activePage = document.getElementById('page' + targetPageName);
-            const activeNav = document.getElementById('nav' + targetPageName);
+            // Aktifkan halaman yang dipilih
+            const targetPageId = 'page' + pageKey.charAt(0).toUpperCase() + pageKey.slice(1);
+            const targetNavId = 'nav' + pageKey.charAt(0).toUpperCase() + pageKey.slice(1);
+
+            const activePage = document.getElementById(targetPageId);
+            const activeNav = document.getElementById(targetNavId);
 
             if (activePage) activePage.classList.add('active');
             if (activeNav) activeNav.classList.add('active');
         }
 
-        // Format Rupiah Otomatis Titik
+        // FORMAT RUPIAH OTOMATIS
         function formatRupiah(input) {
             let value = input.value.replace(/[^,\d]/g, '').toString();
             let split = value.split(',');
@@ -628,6 +649,7 @@
             input.value = rupiah;
         }
 
+        // NOTIFIKASI TOAST
         function showToast(message) {
             var toast = document.getElementById("toast");
             toast.innerText = message;
@@ -637,13 +659,13 @@
             }, 2500);
         }
 
-        // Kontrol Modal Form
+        // BUKA TUTUP MODAL
         function openBookingModal() { document.getElementById('bookingModal').classList.add('active'); }
         function closeBookingModal() { document.getElementById('bookingModal').classList.remove('active'); }
         function openExpenseModal() { document.getElementById('expenseModal').classList.add('active'); }
         function closeExpenseModal() { document.getElementById('expenseModal').classList.remove('active'); }
 
-        // Update Profil Studio dari Menu Akun
+        // SIMPAN PENGATURAN PROFIL STUDIO
         function handleSettingsSubmit(event) {
             event.preventDefault();
             const newStudioName = document.getElementById('settingStudioName').value;
@@ -651,14 +673,14 @@
             showToast("✨ Profil studio berhasil diperbarui!");
         }
 
-        // Kirim Tagihan WhatsApp
+        // KIRIM INVOICE VIA WHATSAPP
         function sendInvoice(name, service, dp) {
             const text = `Halo Kak *${name}*, berikut rincian tagihan/booking layanan studio kami:\n\n✨ *Layanan:* ${service}\n💳 *DP Masuk:* Rp ${dp}\n📌 *Status:* Pending Pelunasan\n\nTerima kasih! 🙏`;
             const encodedText = encodeURIComponent(text);
             window.open(`https://wa.me/?text=${encodedText}`, '_blank');
         }
 
-        // Submit Data Booking Baru
+        // SUBMIT BOOKING BARU (KE DASHBOARD & GOOGLE SHEETS)
         function handleFormSubmit(event) {
             event.preventDefault();
             const name = document.getElementById('clientNameInput').value;
@@ -666,14 +688,11 @@
             const date = document.getElementById('dateInput').value;
             const dp = document.getElementById('dpInput').value;
 
-            let rawDpNumber = parseInt(dp.replace(/\./g, '')) || 0;
-            totalUangMasuk += rawDpNumber;
-            updateFinancialDisplay();
-
+            // 1. TUTUP MODAL DAN RESET FORM SEKETIKA
             closeBookingModal();
             document.getElementById('bookingForm').reset();
 
-            // Render ke Beranda
+            // 2. RENDERING DISPLAY BERANDA
             document.getElementById('bookingListContainer').insertAdjacentHTML('afterbegin', `
                 <div class="booking-box">
                     <div>
@@ -684,7 +703,7 @@
                 </div>
             `);
 
-            // Render ke Klien
+            // RENDERING MENU KLIEN
             document.getElementById('clientListContainer').insertAdjacentHTML('afterbegin', `
                 <div class="booking-box">
                     <div>
@@ -695,7 +714,7 @@
                 </div>
             `);
 
-            // Render ke Invoice
+            // RENDERING MENU INVOICE
             document.getElementById('invoiceListContainer').insertAdjacentHTML('afterbegin', `
                 <div class="booking-box">
                     <div>
@@ -706,25 +725,41 @@
                 </div>
             `);
 
+            // UPDATE ANGKA STATISTIK
+            let rawDpNumber = parseInt(dp.replace(/\./g, '')) || 0;
+            totalUangMasuk += rawDpNumber;
+            updateFinancialDisplay();
+
             document.getElementById('countBooking').innerText = parseInt(document.getElementById('countBooking').innerText) + 1;
             document.getElementById('countKlien').innerText = parseInt(document.getElementById('countKlien').innerText) + 1;
 
             showToast("✨ Data berhasil dicatat ke sistem studio!");
+
+            // 3. KIRIM DATA KE GOOGLE SHEETS VIA APPS SCRIPT
+            const formData = { nama: name, layanan: service, tanggal: date, dp: dp };
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            }).catch(error => {
+                console.error('Sinkronisasi Google Sheets error:', error);
+            });
         }
 
-        // Submit Pengeluaran
+        // SUBMIT PENGELUARAN BARU
         function handleExpenseSubmit(event) {
             event.preventDefault();
             const desc = document.getElementById('expDescInput').value;
             const category = document.getElementById('expCategoryInput').value;
             const nominal = document.getElementById('expNominalInput').value;
 
+            closeExpenseModal();
+            document.getElementById('expenseForm').reset();
+
             let rawNominal = parseInt(nominal.replace(/\./g, '')) || 0;
             totalUangKeluar += rawNominal;
             updateFinancialDisplay();
-
-            closeExpenseModal();
-            document.getElementById('expenseForm').reset();
 
             document.getElementById('financeListContainer').insertAdjacentHTML('afterbegin', `
                 <div class="booking-box">
@@ -739,6 +774,7 @@
             showToast("💸 Pengeluaran studio dicatat!");
         }
 
+        // UPDATE TAMPILAN ANGKAKEUANGAN
         function updateFinancialDisplay() {
             let netProfit = totalUangMasuk - totalUangKeluar;
             document.getElementById('totalOmzetDisplay').innerText = "Rp " + totalUangMasuk.toLocaleString('id-ID');
