@@ -579,6 +579,30 @@
                 <button class="submit-btn" style="background: #25D366;" id="whatsappSendBtn">📲 Kirim Rapi ke WhatsApp Klien</button>
             </div>
         </div>
+        <!-- MODAL KONFIRMASI HAPUS KUSTOM (Ganti confirm browser) -->
+        <div class="modal-overlay" id="deleteConfirmModal">
+            <div class="modal-sheet" style="text-align: center; padding-top: 30px;">
+                <div style="font-size: 36px; margin-bottom: 10px;">🗑️</div>
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Hapus Catatan Ini?</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Data akan dihapus dari tampilan aplikasi Anda.</p>
+                <div style="display: flex; gap: 10px;">
+                    <button class="submit-btn" style="background: #EAE3DD; color: var(--text-main); flex: 1;" onclick="closeDeleteModal()">Batal</button>
+                    <button class="submit-btn" style="background: var(--danger); flex: 1;" id="confirmDeleteBtn">Ya, Hapus</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL NOTIFIKASI UPGRADE PRO (Ganti alert browser) -->
+        <div class="modal-overlay" id="limitModal">
+            <div class="modal-sheet" style="text-align: center; padding-top: 30px;">
+                <div style="font-size: 36px; margin-bottom: 10px;">🔒</div>
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Batas Trial Gratis Habis!</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">
+                    Anda telah mencapai limit <b>5 project riasan</b>.<br>Silakan upgrade ke versi <b>GenMUA PRO</b> untuk memasukkan data tanpa batas.
+                </p>
+                <button class="submit-btn" style="background: var(--accent);" onclick="closeLimitModal()">Mengerti</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -646,11 +670,41 @@
         }
 
         // FUNGSI HAPUS ITEM (UI ONLY - AMAN UNTUK GOOGLE SHEET)
+       let activeDeleteId = null;
+
+        // FUNGSI MEMBUKA MODAL KONFIRMASI HAPUS (Custom, Tanpa Browser Confirm)
         function deleteItem(elementId) {
-            if(confirm("Apakah Anda yakin ingin menghapus catatan baris ini dari tampilan?")) {
-                const item = document.getElementById(elementId);
-                if(item) { item.remove(); showToast("🗑️ Baris berhasil dihapus dari dasbor."); }
+            activeDeleteId = elementId;
+            document.getElementById('deleteConfirmModal').classList.add('active');
+            
+            document.getElementById('confirmDeleteBtn').onclick = function() {
+                if (activeDeleteId) {
+                    const item = document.getElementById(activeDeleteId);
+                    if (item) { 
+                        item.remove(); 
+                        showToast("🗑️ Catatan berhasil dihapus dari dasbor."); 
+                    }
+                }
+                closeDeleteModal();
+            };
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteConfirmModal').classList.remove('active');
+            activeDeleteId = null;
+        }
+
+        // FUNGSI CEK LIMIT 5 PROJECT (Menggunakan Modal Custom)
+        function openBookingModal() { 
+            if (!isProAccount && totalProjectCount >= 5) {
+                document.getElementById('limitModal').classList.add('active');
+                return;
             }
+            document.getElementById('bookingModal').classList.add('active'); 
+        }
+
+        function closeLimitModal() {
+            document.getElementById('limitModal').classList.remove('active');
         }
 
         // POPUP INVOICE KECIL SEBELUM KIRIM
