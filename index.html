@@ -15,6 +15,7 @@
             --border: #EAE3DD;
             --success: #2E7D32;
             --warning: #ED6C02;
+            --danger: #D32F2F;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -40,7 +41,7 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            min-height: 700px;
+            min-height: 720px;
         }
 
         /* Header Studio */
@@ -74,12 +75,13 @@
             text-transform: uppercase;
         }
 
-        /* Konten Halaman (Bisa Diganti-ganti antara Beranda & Klien) */
+        /* Halaman Konten */
         .page-content {
             display: none;
             flex-grow: 1;
             padding: 20px;
             overflow-y: auto;
+            padding-bottom: 80px;
         }
 
         .page-content.active {
@@ -117,7 +119,7 @@
         }
 
         .stat-item h3 {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
         }
 
@@ -161,7 +163,7 @@
         .menu-icon { font-size: 18px; margin-bottom: 4px; }
         .menu-btn span { font-size: 10px; font-weight: 600; color: var(--text-main); display: block; }
 
-        /* Booking / Klien List Box */
+        /* Card / Box Tampilan */
         .booking-box {
             background: #FBF9F7;
             border: 1px solid var(--border);
@@ -183,7 +185,23 @@
             border-radius: 6px;
         }
         .status-badge.progress { background: #FFF3E0; color: var(--warning); }
-        .status-badge.done { background: #E8F5E9; color: var(--success); }
+        .status-badge.expense { background: #FFEBEE; color: var(--danger); }
+
+        /* Tombol Tambah Pengeluaran di Menu Keuangan */
+        .action-card-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: opacity 0.2s;
+        }
+        .action-card-btn:hover { opacity: 0.9; }
 
         /* Navigasi Bawah */
         .bottom-nav {
@@ -192,7 +210,11 @@
             background: #FFFFFF;
             border-top: 1px solid var(--border);
             padding: 12px 0;
-            margin-top: auto;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
         }
 
         .nav-item {
@@ -209,7 +231,7 @@
         .nav-item.active { color: var(--accent); }
         .nav-item div { font-size: 16px; margin-bottom: 2px; }
 
-        /* MODAL FORM INPUT BOOKING BARU */
+        /* MODAL UMUM (FORM) */
         .modal-overlay {
             display: none;
             position: absolute;
@@ -292,7 +314,7 @@
 
         .submit-btn:hover { background: var(--accent); }
 
-        /* TOAST NOTIFIKASI ELEGAN */
+        /* TOAST NOTIFIKASI */
         #toast {
             visibility: hidden;
             min-width: 220px;
@@ -304,7 +326,7 @@
             position: fixed;
             z-index: 1000;
             left: 50%;
-            bottom: 30px;
+            bottom: 70px;
             transform: translateX(-50%);
             font-size: 12px;
             font-weight: 600;
@@ -316,7 +338,7 @@
         #toast.show {
             visibility: visible;
             opacity: 1;
-            bottom: 50px;
+            bottom: 90px;
         }
     </style>
 </head>
@@ -332,12 +354,11 @@
             <div class="owner-badge">Owner</div>
         </div>
 
-        <!-- HALAMAN 1: BERANDA -->
+        <!-- ================= HALAMAN 1: BERANDA ================= -->
         <div id="pageBeranda" class="page-content active">
-            <!-- Kartu Omzet -->
             <div class="omzet-card">
-                <p>Total Pendapatan Bulan Ini</p>
-                <h1 id="totalOmzet">Rp 49.685.000</h1>
+                <p>Total Pendapatan Bersih</p>
+                <h1 id="totalOmzetDisplay">Rp 49.685.000</h1>
                 <div class="stats-grid">
                     <div class="stat-item">
                         <h3 id="countKlien">44</h3>
@@ -354,7 +375,6 @@
                 </div>
             </div>
 
-            <!-- Menu Cepat -->
             <div class="section-title">Akses Cepat</div>
             <div class="quick-access">
                 <div class="menu-btn" onclick="switchPage('klien')">
@@ -365,7 +385,7 @@
                     <div class="menu-icon">📅</div>
                     <span>Booking</span>
                 </div>
-                <div class="menu-btn" onclick="showToast('Fitur Laporan Keuangan segera hadir')">
+                <div class="menu-btn" onclick="switchPage('keuangan')">
                     <div class="menu-icon">💰</div>
                     <span>Keuangan</span>
                 </div>
@@ -375,7 +395,6 @@
                 </div>
             </div>
 
-            <!-- Booking Mendatang -->
             <div class="section-title">Booking Terdekat</div>
             <div id="bookingListContainer">
                 <div class="booking-box">
@@ -388,11 +407,10 @@
             </div>
         </div>
 
-        <!-- HALAMAN 2: DAFTAR KLIEN -->
+        <!-- ================= HALAMAN 2: KLIEN ================= -->
         <div id="pageKlien" class="page-content">
             <div class="section-title">Semua Data Klien Studio</div>
             <div id="clientListContainer">
-                <!-- Data klien akan otomatis masuk ke sini saat diinput -->
                 <div class="booking-box">
                     <div>
                         <div class="client-name">Sinta Melati</div>
@@ -403,7 +421,42 @@
             </div>
         </div>
 
-        <!-- Bottom Navigation -->
+        <!-- ================= HALAMAN 3: KEUANGAN ================= -->
+        <div id="pageKeuangan" class="page-content">
+            <div class="omzet-card" style="background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);">
+                <p>Arus Kas Masuk - Keluar</p>
+                <h1 id="netProfitDisplay">Rp 48.985.000</h1>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <h3 id="totalMasukDisplay">Rp 51.185.000</h3>
+                        <span>Uang Masuk</span>
+                    </div>
+                    <div class="stat-item">
+                        <h3 id="totalKeluarDisplay">Rp 700.000</h3>
+                        <span>Uang Keluar</span>
+                    </div>
+                    <div class="stat-item">
+                        <h3>Bulan Ini</h3>
+                        <span>Periode</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="action-card-btn" onclick="openExpenseModal()">➕ Catat Pengeluaran Baru</button>
+
+            <div class="section-title">Riwayat Transaksi Keuangan</div>
+            <div id="financeListContainer">
+                <div class="booking-box">
+                    <div>
+                        <div class="client-name">Beli Perlengkapan Makeup Baru</div>
+                        <div class="client-service">23 Jul 2026 • Kategori: Produk / Bahan</div>
+                    </div>
+                    <div class="status-badge expense">- Rp 500.000</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= BOTTOM NAVIGATION ================= -->
         <div class="bottom-nav">
             <button class="nav-item active" id="navBeranda" onclick="switchPage('beranda')">
                 <div>🏠</div>Beranda
@@ -411,8 +464,8 @@
             <button class="nav-item" onclick="openBookingModal()">
                 <div>📅</div>Booking
             </button>
-            <button class="nav-item" onclick="showToast('Buka Kalender Jadwal')">
-                <div>🗓️</div>Kalender
+            <button class="nav-item" id="navKeuangan" onclick="switchPage('keuangan')">
+                <div>💰</div>Keuangan
             </button>
             <button class="nav-item" id="navKlien" onclick="switchPage('klien')">
                 <div>👥</div>Klien
@@ -454,18 +507,54 @@
                 </form>
             </div>
         </div>
+
+        <!-- MODAL FORM CATAT PENGELUARAN -->
+        <div class="modal-overlay" id="expenseModal">
+            <div class="modal-sheet">
+                <div class="modal-header">
+                    <h3>Catat Pengeluaran Studio</h3>
+                    <button class="close-modal" onclick="closeExpenseModal()">✕</button>
+                </div>
+                <form id="expenseForm" onsubmit="handleExpenseSubmit(event)">
+                    <div class="form-group">
+                        <label>Keterangan Pengeluaran</label>
+                        <input type="text" id="expDescInput" placeholder="Contoh: Transport Lokasi / Beli Ampoule" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kategori</label>
+                        <select id="expCategoryInput">
+                            <option value="Produk / Bahan">Produk / Bahan Makeup</option>
+                            <option value="Transport">Transport & Parkir</option>
+                            <option value="Honor Tim">Honor Asisten / Tim</option>
+                            <option value="Lainnya">Biaya Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nominal Keluar (Rp)</label>
+                        <input type="text" id="expNominalInput" placeholder="Contoh: 150.000" oninput="formatRupiah(this)" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Simpan Pengeluaran</button>
+                </form>
+            </div>
+        </div>
     </div>
 
-    <!-- TOAST NOTIFIKASI BERSIH -->
-    <div id="toast">✅ Data berhasil disimpan!</div>
+    <div id="toast">✅ Berhasil!</div>
 
     <script>
-        // Fungsi Berpindah Halaman (Beranda <-> Klien)
+        // Data Keuangan & Statistik Sementara (Bisa dikembangkan ke Database)
+        let totalUangMasuk = 51185000;
+        let totalUangKeluar = 700000;
+
+        // Fungsi Berpindah Halaman (Beranda <-> Klien <-> Keuangan)
         function switchPage(page) {
             document.getElementById('pageBeranda').classList.remove('active');
             document.getElementById('pageKlien').classList.remove('active');
+            document.getElementById('pageKeuangan').classList.remove('active');
+            
             document.getElementById('navBeranda').classList.remove('active');
             document.getElementById('navKlien').classList.remove('active');
+            document.getElementById('navKeuangan').classList.remove('active');
 
             if (page === 'beranda') {
                 document.getElementById('pageBeranda').classList.add('active');
@@ -473,10 +562,13 @@
             } else if (page === 'klien') {
                 document.getElementById('pageKlien').classList.add('active');
                 document.getElementById('navKlien').classList.add('active');
+            } else if (page === 'keuangan') {
+                document.getElementById('pageKeuangan').classList.add('active');
+                document.getElementById('navKeuangan').classList.add('active');
             }
         }
 
-        // Fungsi Memformat Angka Menjadi Titik Otomatis (Ribuan)
+        // Format Rupiah Otomatis Titik
         function formatRupiah(input) {
             let value = input.value.replace(/[^,\d]/g, '').toString();
             let split = value.split(',');
@@ -488,11 +580,9 @@
                 let separator = sisa ? '.' : '';
                 rupiah += separator + ribuan.join('.');
             }
-
             input.value = rupiah;
         }
 
-        // Fungsi Toast Notification
         function showToast(message) {
             var toast = document.getElementById("toast");
             toast.innerText = message;
@@ -502,82 +592,93 @@
             }, 2500);
         }
 
-        // Fungsi Membuka Modal Form
-        function openBookingModal() {
-            document.getElementById('bookingModal').classList.add('active');
-        }
+        // Modal Kontrol
+        function openBookingModal() { document.getElementById('bookingModal').classList.add('active'); }
+        function closeBookingModal() { document.getElementById('bookingModal').classList.remove('active'); }
+        function openExpenseModal() { document.getElementById('expenseModal').classList.add('active'); }
+        function closeExpenseModal() { document.getElementById('expenseModal').classList.remove('active'); }
 
-        // Fungsi Menutup Modal Form
-        function closeBookingModal() {
-            document.getElementById('bookingModal').classList.remove('active');
-        }
-
-        // Fungsi Submit Form Utama & Masuk ke Menu Klien
+        // Submit Form Booking (Uang Masuk)
         function handleFormSubmit(event) {
             event.preventDefault();
-            
             const name = document.getElementById('clientNameInput').value;
             const service = document.getElementById('serviceInput').value;
             const date = document.getElementById('dateInput').value;
             const dp = document.getElementById('dpInput').value;
 
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbwOCy5DgoQta3XY8-Trj1qzJpAxUkqaD5DzaTGZ8uoaqrnIwMaQ0TTV2W-tU3vVaLIvkg/exec';
+            // Update Angka Keuangan Masuk
+            let rawDpNumber = parseInt(dp.replace(/\./g, '')) || 0;
+            totalUangMasuk += rawDpNumber;
+            updateFinancialDisplay();
 
-            const formData = {
-                nama: name,
-                layanan: service,
-                tanggal: date,
-                dp: dp
-            };
-
-            // 1. TUTUP MODAL & RESET FORM
             closeBookingModal();
             document.getElementById('bookingForm').reset();
 
-            // 2. UPDATE TAMPILAN BERANDA (Booking Terdekat)
+            // Render ke Beranda & Klien
             const containerBeranda = document.getElementById('bookingListContainer');
-            const newBoxBeranda = document.createElement('div');
-            newBoxBeranda.className = 'booking-box';
-            newBoxBeranda.innerHTML = `
-                <div>
-                    <div class="client-name">${name}</div>
-                    <div class="client-service">${service} • ${date}</div>
+            containerBeranda.insertAdjacentHTML('afterbegin', `
+                <div class="booking-box">
+                    <div>
+                        <div class="client-name">${name}</div>
+                        <div class="client-service">${service} • ${date}</div>
+                    </div>
+                    <div class="status-badge progress">Pending DP</div>
                 </div>
-                <div class="status-badge progress">Pending DP</div>
-            `;
-            containerBeranda.prepend(newBoxBeranda);
+            `);
 
-            // 3. UPDATE TAMPILAN MENU KLIEN SECARA OTOMATIS
             const containerKlien = document.getElementById('clientListContainer');
-            const newBoxKlien = document.createElement('div');
-            newBoxKlien.className = 'booking-box';
-            newBoxKlien.innerHTML = `
-                <div>
-                    <div class="client-name">${name}</div>
-                    <div class="client-service">${service} • ${date} (DP: Rp ${dp})</div>
+            containerKlien.insertAdjacentHTML('afterbegin', `
+                <div class="booking-box">
+                    <div>
+                        <div class="client-name">${name}</div>
+                        <div class="client-service">${service} • ${date} (DP: Rp ${dp})</div>
+                    </div>
+                    <div class="status-badge progress">Pending DP</div>
                 </div>
-                <div class="status-badge progress">Pending DP</div>
-            `;
-            containerKlien.prepend(newBoxKlien);
+            `);
 
-            // Update angka statistik di layar
-            let currentBooking = parseInt(document.getElementById('countBooking').innerText);
-            document.getElementById('countBooking').innerText = currentBooking + 1;
+            document.getElementById('countBooking').innerText = parseInt(document.getElementById('countBooking').innerText) + 1;
+            document.getElementById('countKlien').innerText = parseInt(document.getElementById('countKlien').innerText) + 1;
 
-            let currentKlien = parseInt(document.getElementById('countKlien').innerText);
-            document.getElementById('countKlien').innerText = currentKlien + 1;
+            showToast("✨ Booking & Uang Masuk tercatat otomatis!");
+        }
 
-            showToast("✨ Data berhasil tersimpan di sistem studio!");
+        // Submit Form Pengeluaran (Uang Keluar)
+        function handleExpenseSubmit(event) {
+            event.preventDefault();
+            const desc = document.getElementById('expDescInput').value;
+            const category = document.getElementById('expCategoryInput').value;
+            const nominal = document.getElementById('expNominalInput').value;
 
-            // 4. KIRIM KE GOOGLE SHEETS
-            fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            }).catch(error => {
-                console.error('Gagal sinkronisasi background:', error);
-            });
+            let rawNominal = parseInt(nominal.replace(/\./g, '')) || 0;
+            totalUangKeluar += rawNominal;
+            updateFinancialDisplay();
+
+            closeExpenseModal();
+            document.getElementById('expenseForm').reset();
+
+            // Render ke List Keuangan
+            const containerFinance = document.getElementById('financeListContainer');
+            containerFinance.insertAdjacentHTML('afterbegin', `
+                <div class="booking-box">
+                    <div>
+                        <div class="client-name">${desc}</div>
+                        <div class="client-service">Baru saja • Kategori: ${category}</div>
+                    </div>
+                    <div class="status-badge expense">- Rp ${nominal}</div>
+                </div>
+            `);
+
+            showToast("💸 Pengeluaran studio berhasil dicatat!");
+        }
+
+        // Update Kalkulasi Angka Keuangan di Layar
+        function updateFinancialDisplay() {
+            let netProfit = totalUangMasuk - totalUangKeluar;
+            document.getElementById('totalOmzetDisplay').innerText = "Rp " + totalUangMasuk.toLocaleString('id-ID');
+            document.getElementById('netProfitDisplay').innerText = "Rp " + netProfit.toLocaleString('id-ID');
+            document.getElementById('totalMasukDisplay').innerText = "Rp " + totalUangMasuk.toLocaleString('id-ID');
+            document.getElementById('totalKeluarDisplay').innerText = "Rp " + totalUangKeluar.toLocaleString('id-ID');
         }
     </script>
 </body>
