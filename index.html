@@ -175,7 +175,7 @@
                         <label>Nama Pemilik (Owner)</label>
                         <input type="text" id="settingOwnerName" required>
                     </div>
-                    <button type="submit" class="submit-btn" style="margin-top: 5px;">Simpan & Muat Ulang Data</button>
+                    <button type="submit" class="submit-btn" style="margin-top: 5px;">Simpan Profil Studio</button>
                 </form>
             </div>
             <div class="settings-card">
@@ -271,7 +271,7 @@
             </div>
         </div>
 
-        <!-- Upgrade PRO Modal dengan Daftar Harga -->
+        <!-- Upgrade PRO Modal -->
         <div class="modal-overlay" id="upgradeModal">
             <div class="modal-sheet" style="padding-top: 20px;">
                 <div class="modal-header" style="margin-bottom: 15px;">
@@ -306,17 +306,22 @@
     <div id="toast">✅ Berhasil!</div>
 
     <script>
+        // --- AMBIL MEMORI DENGAN DEFAULT AMAN ---
         let appState = {
             studioName: localStorage.getItem('genmua_studioName') || 'Nela Mua Studio',
             ownerName: localStorage.getItem('genmua_ownerName') || 'Nela',
             isPro: localStorage.getItem('genmua_isPro') === 'true',
-            projectCount: 0, uangMasuk: 0, uangKeluar: 0, belumLunasCount: 0
+            projectCount: 0, 
+            uangMasuk: 0, 
+            uangKeluar: 0, 
+            belumLunasCount: 0
         };
         let activeDelete = { id: null, type: null, amount: 0, status: '' };
 
         // URL GOOGLE APPS SCRIPT
         const scriptURL = 'https://script.google.com/macros/s/AKfycbwOCy5DgoQta3XY8-Trj1qzJpAxUkqaD5DzaTGZ8uoaqrnIwMaQ0TTV2W-tU3vVaLIvkg/exec';
 
+        // SET IDENTITAS DI MUKA
         document.getElementById('headerStudioName').innerText = appState.studioName;
         document.getElementById('headerOwnerName').innerText = "Owner: " + appState.ownerName;
         document.getElementById('settingStudioName').value = appState.studioName;
@@ -436,7 +441,13 @@
             closeModal('bookingModal'); document.getElementById('bookingForm').reset();
             if(appState.projectCount === 0) document.getElementById('bookingListContainer').innerHTML = '';
 
-            appState.projectCount++; appState.uangMasuk += rawMoney;
+            // TAMBAH HITUNGAN KE PERANGKAT
+            let deviceCreatedCount = parseInt(localStorage.getItem('genmua_deviceCreatedCount') || '0');
+            deviceCreatedCount++;
+            localStorage.setItem('genmua_deviceCreatedCount', deviceCreatedCount.toString());
+
+            appState.projectCount++; 
+            appState.uangMasuk += rawMoney;
             if(statusPay === 'DP') appState.belumLunasCount++;
             
             renderBookingToUI(uniqueId, name, service, date, rawMoney, note, statusPay);
@@ -467,12 +478,23 @@
             updateDashboardStats(); showToast("💸 Pengeluaran dicatat!");
         }
 
+        // --- PERBAIKAN FATAL: UPDATE PROFIL TANPA REFRESH HALAMAN ---
         function handleSettingsSubmit(event) {
             event.preventDefault();
-            localStorage.setItem('genmua_studioName', document.getElementById('settingStudioName').value);
-            localStorage.setItem('genmua_ownerName', document.getElementById('settingOwnerName').value);
-            showToast("✨ Profil diperbarui! Memuat data studio...");
-            setTimeout(() => { location.reload(); }, 1500); 
+            const newStudio = document.getElementById('settingStudioName').value.trim();
+            const newOwner = document.getElementById('settingOwnerName').value.trim();
+            
+            appState.studioName = newStudio;
+            appState.ownerName = newOwner;
+            
+            localStorage.setItem('genmua_studioName', newStudio);
+            localStorage.setItem('genmua_ownerName', newOwner);
+            
+            document.getElementById('headerStudioName').innerText = newStudio;
+            document.getElementById('headerOwnerName').innerText = "Owner: " + newOwner;
+            
+            showToast("✨ Profil studio berhasil diperbarui!");
+            loadDataFromSheets(); // Panggil ulang data secara dinamis tanpa browser reload
         }
 
         // --- COPYWRITING INVOICE ELEGAN ---
@@ -504,7 +526,9 @@
         function verifyProCode() {
             const inputCode = document.getElementById('proCodeInput').value.trim().toUpperCase();
             if (inputCode === "GENMUA2026") {
-                localStorage.setItem('genmua_isPro', 'true'); activateProUI(); closeModal('upgradeModal');
+                localStorage.setItem('genmua_isPro', 'true'); 
+                activateProUI(); 
+                closeModal('upgradeModal');
                 showToast("🚀 Berhasil! Akun Anda kini berstatus PRO.");
             } else {
                 alert("❌ Kode Aktivasi salah atau tidak valid! Silakan hubungi admin.");
@@ -527,13 +551,12 @@
             if(document.getElementById('btnUpgradePro')) document.getElementById('btnUpgradePro').style.display = 'none';
         }
 
-        // --- UTILITAS & KAKUKASI ULANG (SUDAH DIPERBAIKI) ---
+        // --- UPDATE DASBOR ---
         function updateDashboardStats() {
             let netProfit = appState.uangMasuk - appState.uangKeluar;
             
-            // 1. UPDATE KEDUA HIKAYAT BERANDA DAN KEUANGAN LENGKAP
             document.getElementById('totalOmzetDisplay').innerText = "Rp " + netProfit.toLocaleString('id-ID');
-            document.getElementById('netProfitDisplay').innerText = "Rp " + netProfit.toLocaleString('id-ID'); // FIX: Arus kas kini aktif!
+            document.getElementById('netProfitDisplay').innerText = "Rp " + netProfit.toLocaleString('id-ID');
             
             document.getElementById('totalMasukDisplay').innerText = "Rp " + appState.uangMasuk.toLocaleString('id-ID');
             document.getElementById('totalKeluarDisplay').innerText = "Rp " + appState.uangKeluar.toLocaleString('id-ID');
@@ -564,8 +587,14 @@
         function showToast(msg) { let t = document.getElementById("toast"); t.innerText = msg; t.className = "show"; setTimeout(() => { t.className = t.className.replace("show", ""); }, 2500); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function openExpenseModal() { document.getElementById('expenseModal').classList.add('active'); }
+        
+        // CEK LIMIT TERLINDUNGI DARI MENGGANTI NAMA STUDIO
         function openBookingModal() { 
-            if (!appState.isPro && appState.projectCount >= 5) { document.getElementById('limitModal').classList.add('active'); return; }
+            let deviceCreatedCount = parseInt(localStorage.getItem('genmua_deviceCreatedCount') || '0');
+            if (!appState.isPro && (appState.projectCount >= 5 || deviceCreatedCount >= 5)) { 
+                document.getElementById('limitModal').classList.add('active'); 
+                return; 
+            }
             document.getElementById('bookingModal').classList.add('active'); 
         }
     </script>
