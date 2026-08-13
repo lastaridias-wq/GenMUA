@@ -341,19 +341,6 @@
                 }
                 updateDashboardStats(); closeModal('deleteConfirmModal');
                 showToast("🗑️ Data dihapus dari tampilan layar.");
-                function updateDashboardStats() {
-    let netProfit = appState.uangMasuk - appState.uangKeluar;
-    
-    document.getElementById('totalOmzetDisplay').innerText = "Rp " + netProfit.toLocaleString('id-ID');
-    // Tambahkan baris di bawah ini agar halaman Keuangan ikut terupdate:
-    document.getElementById('netProfitDisplay').innerText = "Rp " + netProfit.toLocaleString('id-ID'); 
-    
-    document.getElementById('totalMasukDisplay').innerText = "Rp " + appState.uangMasuk.toLocaleString('id-ID');
-    document.getElementById('totalKeluarDisplay').innerText = "Rp " + appState.uangKeluar.toLocaleString('id-ID');
-    document.getElementById('countBooking').innerText = appState.projectCount;
-    document.getElementById('countKlien').innerText = appState.projectCount;
-    document.getElementById('countBelumLunas').innerText = appState.belumLunasCount;
-}
             }
         });
 
@@ -384,7 +371,6 @@
                         appState.projectCount++; appState.uangMasuk += rawMoney;
                         if(item.status === 'DP') appState.belumLunasCount++;
                         
-                        // Pass 'item.tanggal' ke fungsi render
                         renderBookingToUI(uId, item.nama, item.layanan, item.tanggal, rawMoney, item.catatan, item.status);
                     });
                 }
@@ -527,8 +513,8 @@
 
         function buyProCode() {
             // GANTI NOMOR INI DENGAN NOMOR WA ANDA SENDIRI
-            const waNumber = "6285366331038";
-            const textMsg = encodeURIComponent(`Halo Admin GenMUA,\n\nSaya tertarik untuk aktivasi akun PRO seharga *Rp 49.000/Tahun* untuk studio saya:\n\n*Studio:* ${appState.studioName}\n*Owner:* ${appState.ownerName}\n\nMohon info nomor rekening pembayarannya ya kak. Terima kasih!`);
+            const waNumber = "6281234567890";
+            const textMsg = encodeURIComponent(`Halo Admin GenMUA,\n\nSaya tertarik untuk aktivasi akun PRO seharga *Rp 49.000 / 3 Bulan* untuk studio saya:\n\n*Studio:* ${appState.studioName}\n*Owner:* ${appState.ownerName}\n\nMohon info nomor rekening pembayarannya ya kak. Terima kasih!`);
             window.open(`https://wa.me/${waNumber}?text=${textMsg}`, '_blank');
         }
 
@@ -541,9 +527,14 @@
             if(document.getElementById('btnUpgradePro')) document.getElementById('btnUpgradePro').style.display = 'none';
         }
 
-        // --- UTILITAS ---
+        // --- UTILITAS & KAKUKASI ULANG (SUDAH DIPERBAIKI) ---
         function updateDashboardStats() {
-            document.getElementById('totalOmzetDisplay').innerText = "Rp " + (appState.uangMasuk - appState.uangKeluar).toLocaleString('id-ID');
+            let netProfit = appState.uangMasuk - appState.uangKeluar;
+            
+            // 1. UPDATE KEDUA HIKAYAT BERANDA DAN KEUANGAN LENGKAP
+            document.getElementById('totalOmzetDisplay').innerText = "Rp " + netProfit.toLocaleString('id-ID');
+            document.getElementById('netProfitDisplay').innerText = "Rp " + netProfit.toLocaleString('id-ID'); // FIX: Arus kas kini aktif!
+            
             document.getElementById('totalMasukDisplay').innerText = "Rp " + appState.uangMasuk.toLocaleString('id-ID');
             document.getElementById('totalKeluarDisplay').innerText = "Rp " + appState.uangKeluar.toLocaleString('id-ID');
             document.getElementById('countBooking').innerText = appState.projectCount;
