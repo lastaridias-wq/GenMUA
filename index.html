@@ -52,13 +52,15 @@
         .client-name { font-size: 13px; font-weight: 700; color: var(--text-main); }
         .client-service { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
         .right-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-        .status-badge { font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 6px; text-align: center; }
+        
+        .status-badge { font-size: 10px; font-weight: 700; padding: 6px 10px; border-radius: 8px; text-align: center; cursor: pointer; width: 100%; border: none; }
         .status-badge.progress { background: #FFF3E0; color: var(--warning); }
         .status-badge.done { background: #E8F5E9; color: var(--success); }
         .status-badge.expense { background: #FFEBEE; color: var(--danger); }
-        .status-badge.invoice { background: #E3F2FD; color: #1976D2; cursor: pointer; }
-        .btn-delete-item { background: none; border: none; color: var(--danger); font-size: 11px; cursor: pointer; font-weight: 600; }
-
+        .status-badge.invoice { background: #E3F2FD; color: #1976D2; }
+        .status-badge.reminder { background: #FBE9E7; color: #D84315; }
+        
+        .btn-delete-item { background: none; border: none; color: var(--danger); font-size: 11px; cursor: pointer; font-weight: 600; text-decoration: underline; margin-top: 4px; }
         .action-card-btn { width: 100%; padding: 14px; background: var(--accent); color: #FFFFFF; border: none; border-radius: 14px; font-size: 13px; font-weight: 700; cursor: pointer; margin-bottom: 16px; }
 
         /* BOTTOM NAV */
@@ -154,6 +156,7 @@
         <!-- HALAMAN 4: INVOICE -->
         <div id="pageInvoice" class="page-content">
             <div class="section-title">Daftar Tagihan & Invoice Studio</div>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Pilih jenis pesan otomatis yang ingin Anda kirimkan ke WhatsApp Klien.</p>
             <div id="invoiceListContainer"></div>
         </div>
 
@@ -178,7 +181,6 @@
             <div class="settings-card">
                 <h4>Status Langganan Sistem</h4>
                 <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Status Akun: <b id="accountStatusText">FREE TRIAL (Limit 5 Project)</b></p>
-                <!-- TOMBOL UPGRADE NYATA -->
                 <button class="action-card-btn" style="background: #3D3532; margin-bottom: 0;" id="btnUpgradePro" onclick="openUpgradeModal()">🚀 Upgrade ke Versi PRO</button>
             </div>
         </div>
@@ -193,7 +195,6 @@
         </div>
 
         <!-- SEMUA MODAL FORM -->
-        <!-- Booking Modal -->
         <div class="modal-overlay" id="bookingModal">
             <div class="modal-sheet">
                 <div class="modal-header">
@@ -222,7 +223,6 @@
             </div>
         </div>
 
-        <!-- Expense Modal -->
         <div class="modal-overlay" id="expenseModal">
             <div class="modal-sheet">
                 <div class="modal-header">
@@ -237,11 +237,10 @@
             </div>
         </div>
 
-        <!-- Invoice Preview Modal -->
         <div class="modal-overlay" id="invoicePreviewModal">
             <div class="modal-sheet">
                 <div class="modal-header">
-                    <h3>Rincian Informasi Tagihan</h3>
+                    <h3>Pratinjau Pesan Klien</h3>
                     <button class="close-modal" onclick="closeModal('invoicePreviewModal')">✕</button>
                 </div>
                 <div class="invoice-preview-box" id="invoicePreviewText"></div>
@@ -249,7 +248,6 @@
             </div>
         </div>
 
-        <!-- Hapus Confirm Modal -->
         <div class="modal-overlay" id="deleteConfirmModal">
             <div class="modal-sheet" style="text-align: center; padding-top: 30px;">
                 <div style="font-size: 36px; margin-bottom: 10px;">🗑️</div>
@@ -262,55 +260,63 @@
             </div>
         </div>
 
-        <!-- Limit PRO Modal -->
+        <!-- Limit Modal -->
         <div class="modal-overlay" id="limitModal">
             <div class="modal-sheet" style="text-align: center; padding-top: 30px;">
                 <div style="font-size: 36px; margin-bottom: 10px;">🔒</div>
                 <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Batas Trial Gratis Habis!</h3>
                 <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Anda telah mencapai limit 5 project. Silakan upgrade ke versi GenMUA PRO.</p>
-                <button class="submit-btn" style="background: var(--accent);" onclick="openUpgradeModal()">Upgrade Sekarang</button>
+                <button class="submit-btn" style="background: var(--accent);" onclick="openUpgradeModal()">Lihat Penawaran PRO</button>
                 <button class="submit-btn" style="background: #EAE3DD; color: var(--text-main);" onclick="closeModal('limitModal')">Tutup</button>
             </div>
         </div>
 
-        <!-- UPGRADE & AKTIVASI PRO MODAL -->
+        <!-- Upgrade PRO Modal dengan Daftar Harga -->
         <div class="modal-overlay" id="upgradeModal">
-            <div class="modal-sheet" style="text-align: center; padding-top: 20px;">
-                <div class="modal-header" style="margin-bottom: 10px;">
+            <div class="modal-sheet" style="padding-top: 20px;">
+                <div class="modal-header" style="margin-bottom: 15px;">
                     <h3 style="font-size: 16px; font-weight: 700;">Aktivasi Akun PRO</h3>
                     <button class="close-modal" onclick="closeModal('upgradeModal')">✕</button>
                 </div>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">Masukkan <b>Kode Aktivasi</b> yang Anda dapatkan dari Admin, atau klik tombol di bawah untuk memesan kode.</p>
                 
-                <div class="form-group" style="text-align: left;">
-                    <input type="text" id="proCodeInput" placeholder="Ketik Kode Aktivasi di sini..." style="text-align: center; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+                <div style="background: #F4EFEA; padding: 16px; border-radius: 12px; margin-bottom: 16px;">
+                    <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Keuntungan GenMUA PRO:</h4>
+                    <ul style="font-size: 11px; color: var(--text-muted); margin-left: 16px; line-height: 1.6;">
+                        <li>Input project riasan <b>Tanpa Batas (Unlimited)</b></li>
+                        <li>Sinkronisasi aman ke Google Sheets Anda</li>
+                        <li>Akses fitur copywriting tagihan elegan</li>
+                    </ul>
+                    <div style="margin-top: 10px; font-size: 14px; font-weight: 800; color: var(--accent);">
+                        Hanya Rp 49.000 / Tahun
+                    </div>
                 </div>
 
-                <button class="submit-btn" style="background: var(--text-main); margin-bottom: 10px;" onclick="verifyProCode()">🔑 Verifikasi Kode</button>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Sudah bayar? Masukkan <b>Kode Aktivasi</b> dari Admin di sini:</p>
+                
+                <div class="form-group">
+                    <input type="text" id="proCodeInput" placeholder="Ketik Kode Aktivasi..." style="text-align: center; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+                </div>
+
+                <button class="submit-btn" style="background: var(--text-main); margin-bottom: 8px;" onclick="verifyProCode()">🔑 Verifikasi Kode</button>
                 <button class="submit-btn" style="background: #25D366; color: white;" onclick="buyProCode()">📲 Pesan Kode via WhatsApp</button>
             </div>
         </div>
+
     </div>
     <div id="toast">✅ Berhasil!</div>
 
     <script>
-        // --- 1. LOCAL STORAGE & APP STATE (PEMISAHAN USER) ---
         let appState = {
             studioName: localStorage.getItem('genmua_studioName') || 'Nela Mua Studio',
             ownerName: localStorage.getItem('genmua_ownerName') || 'Nela',
             isPro: localStorage.getItem('genmua_isPro') === 'true',
-            projectCount: 0,
-            uangMasuk: 0,
-            uangKeluar: 0,
-            belumLunasCount: 0
+            projectCount: 0, uangMasuk: 0, uangKeluar: 0, belumLunasCount: 0
         };
-
         let activeDelete = { id: null, type: null, amount: 0, status: '' };
 
         // URL GOOGLE APPS SCRIPT
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzaxeEidJZC5MF482Jtz_DmSHuW5ZyvmfY27tvPO2Qjmsq2Oa6uLYtTUXnBiG5kKCRfKQ/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwOCy5DgoQta3XY8-Trj1qzJpAxUkqaD5DzaTGZ8uoaqrnIwMaQ0TTV2W-tU3vVaLIvkg/exec';
 
-        // SET IDENTITAS SAAT DIBUKA
         document.getElementById('headerStudioName').innerText = appState.studioName;
         document.getElementById('headerOwnerName').innerText = "Owner: " + appState.ownerName;
         document.getElementById('settingStudioName').value = appState.studioName;
@@ -319,13 +325,10 @@
 
         window.addEventListener('DOMContentLoaded', loadDataFromSheets);
 
-        // --- 2. LOGIKA HAPUS YANG PRESISI & SINKRON ---
         document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
             if (activeDelete.id) {
                 if (activeDelete.type === 'booking') {
-                    const b = document.getElementById('b-' + activeDelete.id);
-                    const c = document.getElementById('c-' + activeDelete.id);
-                    const i = document.getElementById('i-' + activeDelete.id);
+                    const b = document.getElementById('b-' + activeDelete.id); const c = document.getElementById('c-' + activeDelete.id); const i = document.getElementById('i-' + activeDelete.id);
                     if(b) b.remove(); if(c) c.remove(); if(i) i.remove();
 
                     appState.projectCount = Math.max(0, appState.projectCount - 1);
@@ -334,12 +337,9 @@
                 } 
                 else if (activeDelete.type === 'expense') {
                     const e = document.getElementById('exp-' + activeDelete.id);
-                    if(e) e.remove();
-                    appState.uangKeluar = Math.max(0, appState.uangKeluar - activeDelete.amount);
+                    if(e) e.remove(); appState.uangKeluar = Math.max(0, appState.uangKeluar - activeDelete.amount);
                 }
-                
-                updateDashboardStats();
-                closeModal('deleteConfirmModal');
+                updateDashboardStats(); closeModal('deleteConfirmModal');
                 showToast("🗑️ Data dihapus dari tampilan layar.");
             }
         });
@@ -349,7 +349,6 @@
             document.getElementById('deleteConfirmModal').classList.add('active');
         }
 
-        // --- 3. AMBIL DATA DARI SHEET (FILTER BERDASARKAN STUDIO) ---
         async function loadDataFromSheets() {
             try {
                 const response = await fetch(scriptURL);
@@ -360,30 +359,27 @@
                 document.getElementById('invoiceListContainer').innerHTML = '';
                 
                 appState.projectCount = 0; appState.uangMasuk = 0; appState.belumLunasCount = 0;
-
                 const myData = allData.filter(item => item.studio === appState.studioName);
 
                 if (myData.length === 0) {
-                    document.getElementById('bookingListContainer').innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;">Belum ada data untuk studio ini.</p>';
+                    const emptyText = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:20px;">Belum ada agenda riasan. Yuk, tambah booking baru!</p>';
+                    document.getElementById('bookingListContainer').innerHTML = emptyText;
                 } else {
                     myData.forEach((item, index) => {
                         const uId = item.id || ('gs-' + index);
                         let rawMoney = parseInt(item.dp) || 0;
-                        
-                        appState.projectCount++;
-                        appState.uangMasuk += rawMoney;
+                        appState.projectCount++; appState.uangMasuk += rawMoney;
                         if(item.status === 'DP') appState.belumLunasCount++;
-
                         renderBookingToUI(uId, item.nama, item.layanan, item.tanggal, rawMoney, item.catatan, item.status);
                     });
                 }
                 updateDashboardStats();
             } catch (error) {
-                document.getElementById('bookingListContainer').innerHTML = '<p style="font-size:12px;color:var(--danger);text-align:center;">Gagal memuat database.</p>';
+                document.getElementById('bookingListContainer').innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:20px;">Belum ada agenda riasan. Yuk, tambah booking baru!</p>';
             }
         }
 
-        // --- 4. RENDER UI ---
+        // --- RENDER UI (Dengan Logika Invoice Tagihan vs Lunas) ---
         function renderBookingToUI(id, name, service, date, money, note, statusPay) {
             const label = statusPay === 'Lunas' ? 'Lunas' : 'Pending';
             const bClass = statusPay === 'Lunas' ? 'done' : 'progress';
@@ -398,21 +394,32 @@
             document.getElementById('clientListContainer').insertAdjacentHTML('afterbegin', `
                 <div class="booking-box" id="c-${id}">
                     <div><div class="client-name">${name}</div><div class="client-service">${service} • ${date}<br>Masuk: Rp ${strMoney}</div></div>
-                    <div class="right-actions"><div class="status-badge ${bClass}">${label}</div><button class="btn-delete-item" onclick="triggerDelete('${id}', 'booking', ${money}, '${statusPay}')">Hapus</button></div>
+                    <div class="right-actions"><div class="status-badge ${bClass}">${statusPay === 'Lunas' ? 'Lunas' : 'DP Terbayar'}</div><button class="btn-delete-item" onclick="triggerDelete('${id}', 'booking', ${money}, '${statusPay}')">Hapus</button></div>
                 </div>
             `);
+            
+            // MENU INVOICE: JIKA DP, TAMPILKAN TOMBOL TAGIHAN & BUKTI DP. JIKA LUNAS, TAMPILKAN STRUK LUNAS.
+            let invoiceButtons = "";
+            if (statusPay === 'Lunas') {
+                invoiceButtons = `<div class="status-badge done" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'lunas')">📝 Struk Lunas</div>`;
+            } else {
+                invoiceButtons = `
+                    <div class="status-badge reminder" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'tagihan')">🔔 Tagih Sisa</div>
+                    <div class="status-badge invoice" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'dp')">📝 Struk DP</div>
+                `;
+            }
+
             document.getElementById('invoiceListContainer').insertAdjacentHTML('afterbegin', `
                 <div class="booking-box" id="i-${id}">
-                    <div><div class="client-name">${name}</div><div class="client-service">${service} • Rp ${strMoney}</div></div>
+                    <div><div class="client-name">${name}</div><div class="client-service">${service}<br>Dana Masuk: Rp ${strMoney}</div></div>
                     <div class="right-actions">
-                        <div class="status-badge invoice" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', '${statusPay}')">📤 Detail</div>
-                        <button class="btn-delete-item" onclick="triggerDelete('${id}', 'booking', ${money}, '${statusPay}')">Hapus</button>
+                        ${invoiceButtons}
+                        <button class="btn-delete-item" onclick="triggerDelete('${id}', 'booking', ${money}, '${statusPay}')">Hapus Data</button>
                     </div>
                 </div>
             `);
         }
 
-        // --- 5. FUNGSI SUBMIT FORM UTAMA ---
         function handleFormSubmit(event) {
             event.preventDefault();
             const name = document.getElementById('clientNameInput').value;
@@ -425,17 +432,14 @@
             const rawMoney = parseInt(dp.replace(/\./g, '')) || 0;
             const uniqueId = 'local-' + Date.now();
 
-            closeModal('bookingModal');
-            document.getElementById('bookingForm').reset();
+            closeModal('bookingModal'); document.getElementById('bookingForm').reset();
             if(appState.projectCount === 0) document.getElementById('bookingListContainer').innerHTML = '';
 
-            appState.projectCount++;
-            appState.uangMasuk += rawMoney;
+            appState.projectCount++; appState.uangMasuk += rawMoney;
             if(statusPay === 'DP') appState.belumLunasCount++;
             
             renderBookingToUI(uniqueId, name, service, date, rawMoney, note, statusPay);
-            updateDashboardStats();
-            showToast("✨ Data tersimpan di dasbor.");
+            updateDashboardStats(); showToast("✨ Data tersimpan di dasbor.");
 
             fetch(scriptURL, {
                 method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
@@ -464,29 +468,40 @@
 
         function handleSettingsSubmit(event) {
             event.preventDefault();
-            const newStudio = document.getElementById('settingStudioName').value;
-            const newOwner = document.getElementById('settingOwnerName').value;
-            
-            localStorage.setItem('genmua_studioName', newStudio);
-            localStorage.setItem('genmua_ownerName', newOwner);
-            
+            localStorage.setItem('genmua_studioName', document.getElementById('settingStudioName').value);
+            localStorage.setItem('genmua_ownerName', document.getElementById('settingOwnerName').value);
             showToast("✨ Profil diperbarui! Memuat data studio...");
             setTimeout(() => { location.reload(); }, 1500); 
         }
 
-        // --- 6. LOGIKA AKTIVASI KODE PRO ---
-        function openUpgradeModal() {
-            closeModal('limitModal');
-            document.getElementById('upgradeModal').classList.add('active');
+        // --- COPYWRITING INVOICE ELEGAN ---
+        function openInvoicePreview(name, service, money, type) {
+            let templateText = "";
+            const studio = appState.studioName.toUpperCase();
+
+            if (type === 'dp') {
+                templateText = `Halo Kak *${name}*, ✨\n\nTerima kasih telah mempercayakan momen spesial Anda bersama *${studio}*.\n\nBerikut adalah rincian tanda jadi (DP) booking Anda:\n💄 *Layanan:* ${service}\n💳 *DP Masuk:* Rp ${money}\n📊 *Status:* Booking Terkonfirmasi (Belum Lunas)\n\nKami tidak sabar untuk merias Kakak! Jika ada pertanyaan, jangan ragu menghubungi kami. 🙏`;
+            } else if (type === 'lunas') {
+                templateText = `Halo Kak *${name}*, ✨\n\nTerima kasih telah mempercayakan momen spesial Anda bersama *${studio}*.\n\nBerikut adalah rincian pembayaran Anda:\n💄 *Layanan:* ${service}\n💳 *Total Transaksi:* Rp ${money}\n📊 *Status:* LUNAS ✅\n\nSampai jumpa di hari H! 🙏`;
+            } else if (type === 'tagihan') {
+                templateText = `Halo Kak *${name}*, ✨\nSemoga hari Kakak menyenangkan!\n\nMengingatkan bahwa hari bahagia Kakak sudah semakin dekat. Berikut kami lampirkan rincian layanan booking di *${studio}*:\n\n💄 *Layanan:* ${service}\n💳 *Uang Masuk (DP):* Rp ${money}\n\nMohon kesediaannya untuk menyelesaikan sisa pelunasan sesuai kesepakatan ya, Kak. Jika sudah ditransfer, mohon konfirmasinya. Terima kasih banyak! 🙏`;
+            }
+
+            document.getElementById('invoicePreviewText').innerText = templateText;
+            document.getElementById('whatsappSendBtn').onclick = function() { 
+                window.open(`https://wa.me/?text=${encodeURIComponent(templateText)}`, '_blank'); 
+                closeModal('invoicePreviewModal'); 
+            };
+            document.getElementById('invoicePreviewModal').classList.add('active');
         }
+
+        // --- LOGIKA AKTIVASI PRO ---
+        function openUpgradeModal() { closeModal('limitModal'); document.getElementById('upgradeModal').classList.add('active'); }
 
         function verifyProCode() {
             const inputCode = document.getElementById('proCodeInput').value.trim().toUpperCase();
-            // Kode rahasia disetel hardcode untuk MVP (Anda bisa menggantinya)
             if (inputCode === "GENMUA2026") {
-                localStorage.setItem('genmua_isPro', 'true');
-                activateProUI();
-                closeModal('upgradeModal');
+                localStorage.setItem('genmua_isPro', 'true'); activateProUI(); closeModal('upgradeModal');
                 showToast("🚀 Berhasil! Akun Anda kini berstatus PRO.");
             } else {
                 alert("❌ Kode Aktivasi salah atau tidak valid! Silakan hubungi admin.");
@@ -494,9 +509,9 @@
         }
 
         function buyProCode() {
-            // Ganti 6281234567890 dengan nomor WhatsApp asli Anda
-            const waNumber = "6285366331038";
-            const textMsg = encodeURIComponent(`Halo Admin GenMUA, saya ingin membeli Kode Aktivasi PRO untuk studio rias saya:\n\n*Nama Studio:* ${appState.studioName}\n*Owner:* ${appState.ownerName}\n\nMohon info harganya ya kak. Terima kasih!`);
+            // GANTI NOMOR INI DENGAN NOMOR WA ANDA SENDIRI
+            const waNumber = "6281234567890";
+            const textMsg = encodeURIComponent(`Halo Admin GenMUA, saya tertarik untuk aktivasi akun PRO seharga Rp 49.000 untuk studio saya:\n\n*Studio:* ${appState.studioName}\n*Owner:* ${appState.ownerName}\n\nMohon info nomor rekening pembayarannya ya kak. Terima kasih!`);
             window.open(`https://wa.me/${waNumber}?text=${textMsg}`, '_blank');
         }
 
@@ -506,14 +521,12 @@
             document.getElementById('headerOwnerBadge').style.background = "#E8F5E9";
             document.getElementById('headerOwnerBadge').style.color = "#2E7D32";
             document.getElementById('accountStatusText').innerText = "PRO ACCOUNT (Aktif Tanpa Batas)";
-            const btn = document.getElementById('btnUpgradePro');
-            if(btn) btn.style.display = 'none'; // Sembunyikan tombol upgrade jika sudah pro
+            if(document.getElementById('btnUpgradePro')) document.getElementById('btnUpgradePro').style.display = 'none';
         }
 
-        // --- 7. UTILITAS & UI UPDATER ---
+        // --- UTILITAS ---
         function updateDashboardStats() {
             document.getElementById('totalOmzetDisplay').innerText = "Rp " + (appState.uangMasuk - appState.uangKeluar).toLocaleString('id-ID');
-            document.getElementById('netProfitDisplay').innerText = "Rp " + (appState.uangMasuk - appState.uangKeluar).toLocaleString('id-ID');
             document.getElementById('totalMasukDisplay').innerText = "Rp " + appState.uangMasuk.toLocaleString('id-ID');
             document.getElementById('totalKeluarDisplay').innerText = "Rp " + appState.uangKeluar.toLocaleString('id-ID');
             document.getElementById('countBooking').innerText = appState.projectCount;
@@ -543,18 +556,9 @@
         function showToast(msg) { let t = document.getElementById("toast"); t.innerText = msg; t.className = "show"; setTimeout(() => { t.className = t.className.replace("show", ""); }, 2500); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function openExpenseModal() { document.getElementById('expenseModal').classList.add('active'); }
-
         function openBookingModal() { 
             if (!appState.isPro && appState.projectCount >= 5) { document.getElementById('limitModal').classList.add('active'); return; }
             document.getElementById('bookingModal').classList.add('active'); 
-        }
-
-        function openInvoicePreview(name, service, money, statusKey) {
-            const statusLabel = statusKey === 'Lunas' ? 'Lunas (Full Payment)' : 'Pending Pelunasan';
-            const templateText = `✨ *INVOICE ${appState.studioName.toUpperCase()}* ✨\n\n📌 *Nama Klien:* ${name}\n💄 *Layanan:* ${service}\n💵 *Dana Masuk:* Rp ${money}\n📊 *Status Nota:* ${statusLabel}\n\nTerima kasih! 🙏`;
-            document.getElementById('invoicePreviewText').innerText = templateText;
-            document.getElementById('whatsappSendBtn').onclick = function() { window.open(`https://wa.me/?text=${encodeURIComponent(templateText)}`, '_blank'); closeModal('invoicePreviewModal'); };
-            document.getElementById('invoicePreviewModal').classList.add('active');
         }
     </script>
 </body>
