@@ -217,7 +217,7 @@
                         <select id="paymentStatusInput"><option value="DP">DP</option><option value="Lunas">Lunas</option></select>
                     </div>
                     <div class="form-group"><label>Nominal (Rp)</label><input type="text" id="dpInput" oninput="formatRupiah(this)" required></div>
-                    <div class="form-group"><label>Catatan</label><textarea id="noteInput"></textarea></div>
+                    <div class="form-group"><label>Catatan Khusus Riasan</label><textarea id="noteInput" placeholder="Cth: Request adat, tipe kulit..."></textarea></div>
                     <button type="submit" class="submit-btn">Simpan Booking</button>
                 </form>
             </div>
@@ -291,7 +291,7 @@
                     </div>
                 </div>
 
-                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Sudah bayar? Masukkan <b>Kode Aktivasi</b> dari Admin di sini:</p>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Sudah transfer? Masukkan <b>Kode Aktivasi</b> dari Admin di sini:</p>
                 
                 <div class="form-group">
                     <input type="text" id="proCodeInput" placeholder="Ketik Kode Aktivasi..." style="text-align: center; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
@@ -362,7 +362,7 @@
                 const myData = allData.filter(item => item.studio === appState.studioName);
 
                 if (myData.length === 0) {
-                    const emptyText = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:20px;">Belum ada agenda riasan. Yuk, tambah booking baru!</p>';
+                    const emptyText = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:20px;">Belum ada agenda riasan saat ini. Yuk, tambah booking baru!</p>';
                     document.getElementById('bookingListContainer').innerHTML = emptyText;
                 } else {
                     myData.forEach((item, index) => {
@@ -370,16 +370,18 @@
                         let rawMoney = parseInt(item.dp) || 0;
                         appState.projectCount++; appState.uangMasuk += rawMoney;
                         if(item.status === 'DP') appState.belumLunasCount++;
+                        
+                        // Pass 'item.tanggal' ke fungsi render
                         renderBookingToUI(uId, item.nama, item.layanan, item.tanggal, rawMoney, item.catatan, item.status);
                     });
                 }
                 updateDashboardStats();
             } catch (error) {
-                document.getElementById('bookingListContainer').innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:20px;">Belum ada agenda riasan. Yuk, tambah booking baru!</p>';
+                document.getElementById('bookingListContainer').innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:20px;">Belum ada agenda riasan saat ini. Yuk, tambah booking baru!</p>';
             }
         }
 
-        // --- RENDER UI (Dengan Logika Invoice Tagihan vs Lunas) ---
+        // --- RENDER UI ---
         function renderBookingToUI(id, name, service, date, money, note, statusPay) {
             const label = statusPay === 'Lunas' ? 'Lunas' : 'Pending';
             const bClass = statusPay === 'Lunas' ? 'done' : 'progress';
@@ -398,14 +400,14 @@
                 </div>
             `);
             
-            // MENU INVOICE: JIKA DP, TAMPILKAN TOMBOL TAGIHAN & BUKTI DP. JIKA LUNAS, TAMPILKAN STRUK LUNAS.
+            // MENU INVOICE
             let invoiceButtons = "";
             if (statusPay === 'Lunas') {
-                invoiceButtons = `<div class="status-badge done" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'lunas')">📝 Struk Lunas</div>`;
+                invoiceButtons = `<div class="status-badge done" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'lunas', '${date}')">📝 Struk Lunas</div>`;
             } else {
                 invoiceButtons = `
-                    <div class="status-badge reminder" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'tagihan')">🔔 Tagih Sisa</div>
-                    <div class="status-badge invoice" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'dp')">📝 Struk DP</div>
+                    <div class="status-badge reminder" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'tagihan', '${date}')">🔔 Tagih Sisa</div>
+                    <div class="status-badge invoice" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'dp', '${date}')">📝 Struk DP</div>
                 `;
             }
 
@@ -475,16 +477,18 @@
         }
 
         // --- COPYWRITING INVOICE ELEGAN ---
-        function openInvoicePreview(name, service, money, type) {
+        function openInvoicePreview(name, service, money, type, date) {
             let templateText = "";
             const studio = appState.studioName.toUpperCase();
 
             if (type === 'dp') {
-                templateText = `Halo Kak *${name}*, ✨\n\nTerima kasih telah mempercayakan momen spesial Anda bersama *${studio}*.\n\nBerikut adalah rincian tanda jadi (DP) booking Anda:\n💄 *Layanan:* ${service}\n💳 *DP Masuk:* Rp ${money}\n📊 *Status:* Booking Terkonfirmasi (Belum Lunas)\n\nKami tidak sabar untuk merias Kakak! Jika ada pertanyaan, jangan ragu menghubungi kami. 🙏`;
-            } else if (type === 'lunas') {
-                templateText = `Halo Kak *${name}*, ✨\n\nTerima kasih telah mempercayakan momen spesial Anda bersama *${studio}*.\n\nBerikut adalah rincian pembayaran Anda:\n💄 *Layanan:* ${service}\n💳 *Total Transaksi:* Rp ${money}\n📊 *Status:* LUNAS ✅\n\nSampai jumpa di hari H! 🙏`;
-            } else if (type === 'tagihan') {
-                templateText = `Halo Kak *${name}*, ✨\nSemoga hari Kakak menyenangkan!\n\nMengingatkan bahwa hari bahagia Kakak sudah semakin dekat. Berikut kami lampirkan rincian layanan booking di *${studio}*:\n\n💄 *Layanan:* ${service}\n💳 *Uang Masuk (DP):* Rp ${money}\n\nMohon kesediaannya untuk menyelesaikan sisa pelunasan sesuai kesepakatan ya, Kak. Jika sudah ditransfer, mohon konfirmasinya. Terima kasih banyak! 🙏`;
+                templateText = `Halo Kak *${name}*, ✨\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut kami lampirkan rincian tanda jadi (DP) untuk mengamankan jadwal Kakak:\n\n💄 *Layanan:* ${service}\n📅 *Tgl Acara:* ${date}\n💳 *Dana Masuk (DP):* Rp ${money}\n📊 *Status:* Booking Terkonfirmasi (Pending Pelunasan)\n\nJadwal Kakak sudah aman dan tercatat di sistem kami. Jika ada referensi makeup yang diinginkan, boleh banget dikirimkan ke kami ya, Kak. Sehat selalu sampai hari H! 🙏`;
+            } 
+            else if (type === 'lunas') {
+                templateText = `Halo Kak *${name}*, ✨\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut adalah rincian pembayaran Anda:\n\n💄 *Layanan:* ${service}\n📅 *Tgl Acara:* ${date}\n💳 *Total Transaksi:* Rp ${money}\n📊 *Status:* LUNAS ✅\n\nKami sangat antusias untuk merias Kakak. Sampai jumpa di hari H! 🙏`;
+            } 
+            else if (type === 'tagihan') {
+                templateText = `Halo Kak *${name}*, ✨\nSemoga Kakak selalu dalam keadaan sehat dan bahagia ya!\n\nTidak terasa hari spesial Kakak sudah semakin dekat. Kami sangat excited untuk merias Kakak nanti! 🥰\n\nBersamaan dengan pesan ini, kami izin melampirkan pengingat rincian layanan booking di *${studio}*:\n\n💄 *Layanan:* ${service}\n📅 *Tgl Acara:* ${date}\n💳 *Uang Masuk (DP):* Rp ${money}\n\nUntuk kelancaran persiapan di hari H, mohon kesediaannya untuk menyelesaikan sisa pelunasan sesuai kesepakatan kita ya, Kak. Jika sudah berkenan melakukan transfer, mohon informasikan kembali ke kami beserta bukti resinya.\n\nTerima kasih banyak atas pengertian dan kerja samanya, Kak! 🙏`;
             }
 
             document.getElementById('invoicePreviewText').innerText = templateText;
@@ -510,8 +514,8 @@
 
         function buyProCode() {
             // GANTI NOMOR INI DENGAN NOMOR WA ANDA SENDIRI
-            const waNumber = "6281234567890";
-            const textMsg = encodeURIComponent(`Halo Admin GenMUA, saya tertarik untuk aktivasi akun PRO seharga Rp 49.000 untuk studio saya:\n\n*Studio:* ${appState.studioName}\n*Owner:* ${appState.ownerName}\n\nMohon info nomor rekening pembayarannya ya kak. Terima kasih!`);
+            const waNumber = "6285366331038";
+            const textMsg = encodeURIComponent(`Halo Admin GenMUA,\n\nSaya tertarik untuk aktivasi akun PRO seharga *Rp 49.000/Tahun* untuk studio saya:\n\n*Studio:* ${appState.studioName}\n*Owner:* ${appState.ownerName}\n\nMohon info nomor rekening pembayarannya ya kak. Terima kasih!`);
             window.open(`https://wa.me/${waNumber}?text=${textMsg}`, '_blank');
         }
 
