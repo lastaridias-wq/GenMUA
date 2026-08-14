@@ -565,32 +565,35 @@
         }
 
         function openInvoicePreview(name, service, money, type, date, phone = '') {
-            let templateText = "";
-            const studio = appState.studioName.toUpperCase();
+    let templateText = "";
+    const studio = appState.studioName.toUpperCase();
 
-            if (type === 'dp') {
-                templateText = `Halo Kak *${name}*, ✨\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut kami lampirkan rincian tanda jadi (DP) untuk mengamankan jadwal Kakak:\n\n💄 *Layanan:* ${service}\n📅 *Tgl Acara:* ${date}\n💳 *Dana Masuk (DP):* Rp ${money}\n📊 *Status:* Booking Terkonfirmasi (Pending Pelunasan)\n\nJadwal Kakak sudah aman dan tercatat di sistem kami. Jika ada referensi makeup yang diinginkan, boleh banget dikirimkan ke kami ya, Kak. Sehat selalu sampai hari H! 🙏`;
-            } 
-            else if (type === 'lunas') {
-                templateText = `Halo Kak *${name}*, ✨\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut adalah rincian pembayaran Anda:\n\n💄 *Layanan:* ${service}\n📅 *Tgl Acara:* ${date}\n💳 *Total Transaksi:* Rp ${money}\n📊 *Status:* LUNAS ✅\n\nKami sangat antusias untuk merias Kakak. Sampai jumpa di hari H! 🙏`;
-            } 
-            else if (type === 'tagihan') {
-                templateText = `Halo Kak *${name}*, ✨\nSemoga Kakak selalu dalam keadaan sehat dan bahagia ya!\n\nTidak terasa hari spesial Kakak sudah semakin dekat. Kami sangat excited untuk merias Kakak nanti! 🥰\n\nBersamaan dengan pesan ini, kami izin melampirkan pengingat rincian layanan booking di *${studio}*:\n\n💄 *Layanan:* ${service}\n📅 *Tgl Acara:* ${date}\n💳 *Uang Masuk (DP):* Rp ${money}\n\nUntuk kelancaran persiapan di hari H, mohon kesediaannya untuk menyelesaikan sisa pelunasan sesuai kesepakatan kita ya, Kak. Jika sudah berkenan melakukan transfer, mohon informasikan kembali ke kami beserta bukti resinya.\n\nTerima kasih banyak atas pengertian dan kerja samanya, Kak! 🙏`;
-            }
+    if (type === 'dp') {
+        // Tanda bintang pada ${name} sudah dihapus di bawah ini
+        templateText = `Halo Kak ${name}, ✨\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut kami lampirkan rincian tanda jadi (DP) untuk mengamankan jadwal Kakak:\n\n💄 *Layanan:* ${service}\n📅 *Tgl Acara:* ${date}\n💳 *Dana Masuk (DP):* Rp ${money}\n📊 *Status:* Booking Terkonfirmasi (Pending Pelunasan)\n\nJadwal Kakak sudah aman dan tercatat di sistem kami. Jika ada referensi makeup yang diinginkan, boleh banget dikirimkan ke kami ya, Kak. Sehat selalu sampai hari H! 🙏`;
+    } 
+    else if (type === 'lunas') {
+        // Tanda bintang pada ${name} sudah dihapus di bawah ini
+        templateText = `Halo Kak ${name}, ✨\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut adalah rincian pembayaran Anda:\n\n💄 *Layanan:* ${service}\n📅 *Tgl Acara:* ${date}\n💳 *Total Transaksi:* Rp ${money}\n📊 *Status:* LUNAS ✅\n\nKami sangat antusias untuk merias Kakak. Sampai jumpa di hari H! 🙏`;
+    } 
+    else if (type === 'tagihan') {
+        // Tanda bintang pada ${name} sudah dihapus di bawah ini
+        templateText = `Halo Kak ${name}, ✨\nSemoga Kakak selalu dalam keadaan sehat dan bahagia ya!\n\nTidak terasa hari spesial Kakak sudah semakin dekat. Kami sangat excited untuk merias Kakak nanti! 🥰\n\nBersamaan dengan pesan ini, kami izin melampirkan pengingat rincian layanan booking di *${studio}*:\n\n💄 *Layanan:* ${service}\n📅 *Tgl Acara:* ${date}\n💳 *Uang Masuk (DP):* Rp ${money}\n\nUntuk kelancaran persiapan di hari H, mohon kesediaannya untuk menyelesaikan sisa pelunasan sesuai kesepakatan kita ya, Kak. Jika sudah berkenan melakukan transfer, mohon informasikan kembali ke kami beserta bukti resinya.\n\nTerima kasih banyak atas pengertian dan kerja samanya, Kak! 🙏`;
+    }
 
-            const cleanPhone = formatWA(phone);
-            const targetUrl = cleanPhone 
-                ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(templateText)}`
-                : `https://wa.me/?text=${encodeURIComponent(templateText)}`;
+    const cleanPhone = formatWA(phone);
+    const targetUrl = cleanPhone 
+        ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(templateText)}`
+        : `https://wa.me/?text=${encodeURIComponent(templateText)}`;
 
-            document.getElementById('invoicePreviewText').innerText = templateText;
-            document.getElementById('whatsappSendBtn').onclick = function() { 
-                window.open(targetUrl, '_blank'); 
-                closeModal('invoicePreviewModal'); 
-            };
-            document.getElementById('invoicePreviewModal').classList.add('active');
-        }
-
+    document.getElementById('invoicePreviewText').innerText = templateText;
+    document.getElementById('whatsappSendBtn').onclick = function() { 
+        window.open(targetUrl, '_blank'); 
+        closeModal('invoicePreviewModal'); 
+    };
+    document.getElementById('invoicePreviewModal').classList.add('active');
+}
+        
         function openUpgradeModal() { closeModal('limitModal'); document.getElementById('upgradeModal').classList.add('active'); }
 
         function verifyProCode() {
