@@ -268,7 +268,6 @@
         const paramCity = urlParams.get('city');
         const paramOwner = urlParams.get('owner');
 
-        // Jika parameter city diisi terpisah, otomatis gabungkan ke studio
         if (paramCity && paramStudio && !paramStudio.toLowerCase().includes(paramCity.toLowerCase())) {
             paramStudio = paramStudio + ' ' + paramCity;
         }
@@ -305,7 +304,13 @@
                 } 
                 else if (activeDelete.type === 'expense') {
                     const e = document.getElementById('exp-' + activeDelete.id);
-                    if(e) e.remove(); appState.uangKeluar = Math.max(0, appState.uangKeluar - activeDelete.amount);
+                    if(e) e.remove(); 
+                    appState.uangKeluar = Math.max(0, appState.uangKeluar - activeDelete.amount);
+
+                    // Hapus pengeluaran dari LocalStorage VIP
+                    let stored = getStoredExpenses();
+                    stored = stored.filter(item => String(item.id) !== String(activeDelete.id));
+                    saveStoredExpenses(stored);
                 }
                 updateDashboardStats(); closeModal('deleteConfirmModal');
                 showToast("🗑️ Data dihapus dari tampilan layar.");
@@ -342,10 +347,49 @@
                         renderBookingToUI(uId, item.nama, item.layanan, item.tanggal, rawMoney, item.catatan, item.status);
                     });
                 }
-                updateDashboardStats();
+                loadStoredExpensesUI(); // Muat riwayat pengeluaran dari memori HP
             } catch (error) {
                 document.getElementById('bookingListContainer').innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:20px;">Belum ada agenda riasan saat ini. Yuk, tambah booking baru!</p>';
+                loadStoredExpensesUI();
             }
+        }
+
+        // --- MANAJEMEN PENGELUARAN LOCALSTORAGE VIP ---
+        function getExpenseStorageKey() {
+            return 'genmua_vip_exp_' + appState.studioName.replace(/\s+/g, '_');
+        }
+
+        function getStoredExpenses() {
+            try {
+                return JSON.parse(localStorage.getItem(getExpenseStorageKey()) || '[]');
+            } catch(e) {
+                return [];
+            }
+        }
+
+        function saveStoredExpenses(expArray) {
+            localStorage.setItem(getExpenseStorageKey(), JSON.stringify(expArray));
+        }
+
+        function loadStoredExpensesUI() {
+            document.getElementById('financeListContainer').innerHTML = '';
+            appState.uangKeluar = 0;
+            const stored = getStoredExpenses();
+            
+            stored.forEach(item => {
+                appState.uangKeluar += item.rawNominal;
+                renderExpenseToUI(item.id, item.desc, item.nominal, item.rawNominal);
+            });
+            updateDashboardStats();
+        }
+
+        function renderExpenseToUI(id, desc, nominal, rawNominal) {
+            document.getElementById('financeListContainer').insertAdjacentHTML('afterbegin', `
+                <div class="booking-box" id="exp-${id}">
+                    <div><div class="client-name">${desc}</div><div class="client-service">Pengeluaran</div></div>
+                    <div class="right-actions"><div class="status-badge expense">- Rp ${nominal}</div><button class="btn-delete-item" onclick="triggerDelete('${id}', 'expense', ${rawNominal}, '')">Hapus</button></div>
+                </div>
+            `);
         }
 
         function renderBookingToUI(id, name, service, date, money, note, statusPay) {
@@ -423,15 +467,16 @@
             const uniqueId = Date.now();
 
             closeModal('expenseModal'); document.getElementById('expenseForm').reset();
-            appState.uangKeluar += rawNominal;
+            
+            // Simpan pengeluaran permanen di LocalStorage VIP
+            const stored = getStoredExpenses();
+            stored.push({ id: uniqueId, desc: desc, nominal: nominal, rawNominal: rawNominal });
+            saveStoredExpenses(stored);
 
-            document.getElementById('financeListContainer').insertAdjacentHTML('afterbegin', `
-                <div class="booking-box" id="exp-${uniqueId}">
-                    <div><div class="client-name">${desc}</div><div class="client-service">Pengeluaran</div></div>
-                    <div class="right-actions"><div class="status-badge expense">- Rp ${nominal}</div><button class="btn-delete-item" onclick="triggerDelete('${uniqueId}', 'expense', ${rawNominal}, '')">Hapus</button></div>
-                </div>
-            `);
-            updateDashboardStats(); showToast("💸 Pengeluaran dicatat!");
+            appState.uangKeluar += rawNominal;
+            renderExpenseToUI(uniqueId, desc, nominal, rawNominal);
+            updateDashboardStats(); 
+            showToast("💸 Pengeluaran dicatat!");
         }
 
         function handleSettingsSubmit(event) {
