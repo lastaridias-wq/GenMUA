@@ -664,6 +664,33 @@
             }
             document.getElementById('bookingModal').classList.add('active'); 
         }
+
+        function openInvoicePreview(name, service, money, type, date, phone = '') {
+    let templateText = "";
+    const studio = appState.studioName.toUpperCase();
+
+    if (type === 'dp') {
+        templateText = `Halo Kak *${name}*,\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut rincian tanda jadi (DP) untuk mengamankan jadwal Kakak:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Dana Masuk (DP):* Rp ${money}\n- *Status:* Booking Terkonfirmasi (Pending Pelunasan)\n\nJadwal Kakak sudah aman & tercatat di sistem kami. Jika ada referensi makeup yang diinginkan, boleh dikirimkan ke kami ya Kak.\n\nTerima kasih banyak!`;
+    } 
+    else if (type === 'lunas') {
+        templateText = `Halo Kak *${name}*,\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut rincian pembayaran Anda:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Total Transaksi:* Rp ${money}\n- *Status:* LUNAS (Terbayar)\n\nKami sangat antusias untuk merias Kakak. Sampai jumpa di hari H!\n\nTerima kasih banyak!`;
+    } 
+    else if (type === 'tagihan') {
+        templateText = `Halo Kak *${name}*,\n\nSemoga Kakak sehat selalu.\n\nTidak terasa hari spesial Kakak sudah semakin dekat. Bersamaan dengan pesan ini, kami izin melampirkan pengingat rincian booking di *${studio}*:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Uang Masuk (DP):* Rp ${money}\n\nUntuk kelancaran persiapan di hari H, mohon kesediaannya untuk menyelesaikan sisa pelunasan sesuai kesepakatan ya Kak. Jika sudah transfer, mohon infokan bukti resinya.\n\nTerima kasih banyak atas pengertian & kerja samanya!`;
+    }
+
+    const cleanPhone = formatWA(phone);
+    const targetUrl = cleanPhone 
+        ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(templateText)}`
+        : `https://wa.me/?text=${encodeURIComponent(templateText)}`;
+
+    document.getElementById('invoicePreviewText').innerText = templateText;
+    document.getElementById('whatsappSendBtn').onclick = function() { 
+        window.open(targetUrl, '_blank'); 
+        closeModal('invoicePreviewModal'); 
+    };
+    document.getElementById('invoicePreviewModal').classList.add('active');
+}
     </script>
 </body>
 </html>
