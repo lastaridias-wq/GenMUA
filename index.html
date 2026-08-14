@@ -203,6 +203,10 @@
                 </div>
                 <form id="bookingForm" onsubmit="handleFormSubmit(event)">
                     <div class="form-group"><label>Nama Klien</label><input type="text" id="clientNameInput" required></div>
+                    
+                    <!-- INPUT NO WHATSAPP KLIEN -->
+                    <div class="form-group"><label>No. WhatsApp Klien (Opsional)</label><input type="tel" id="clientPhoneInput" placeholder="Cth: 08123456789"></div>
+
                     <div class="form-group">
                         <label>Layanan</label>
                         <select id="serviceInput">
@@ -287,7 +291,7 @@
                         <li>Akses fitur copywriting tagihan elegan</li>
                     </ul>
                     <div style="margin-top: 10px; font-size: 14px; font-weight: 800; color: var(--accent);">
-                        Hanya Rp 49.000 / 3 Bulan
+                        Hanya Rp 35.000 / Sekali Bayar
                     </div>
                 </div>
 
@@ -357,7 +361,6 @@
                     if(e) e.remove(); 
                     appState.uangKeluar = Math.max(0, appState.uangKeluar - activeDelete.amount);
                     
-                    // Hapus data dari LocalStorage
                     let stored = getStoredExpenses();
                     stored = stored.filter(item => String(item.id) !== String(activeDelete.id));
                     saveStoredExpenses(stored);
@@ -370,6 +373,16 @@
         function triggerDelete(uniqueId, type, amount, status = '') {
             activeDelete = { id: uniqueId, type: type, amount: amount, status: status };
             document.getElementById('deleteConfirmModal').classList.add('active');
+        }
+
+        // --- HELPER FORMAT WHATSAPP INTELIGEN (0812... -> 62812...) ---
+        function formatWA(phone) {
+            if (!phone) return '';
+            let cleaned = phone.replace(/[^0-9]/g, '');
+            if (cleaned.startsWith('0')) {
+                cleaned = '62' + cleaned.substring(1);
+            }
+            return cleaned;
         }
 
         async function loadDataFromSheets() {
@@ -391,20 +404,20 @@
                     myData.forEach((item, index) => {
                         const uId = item.id || ('gs-' + index);
                         let rawMoney = parseInt(item.dp) || 0;
+                        let phoneNum = item.hp || item.phone || '';
                         appState.projectCount++; appState.uangMasuk += rawMoney;
                         if(item.status === 'DP') appState.belumLunasCount++;
                         
-                        renderBookingToUI(uId, item.nama, item.layanan, item.tanggal, rawMoney, item.catatan, item.status);
+                        renderBookingToUI(uId, item.nama, item.layanan, item.tanggal, rawMoney, item.catatan, item.status, phoneNum);
                     });
                 }
-                loadStoredExpensesUI(); // Muat riwayat pengeluaran permanen saat refresh
+                loadStoredExpensesUI();
             } catch (error) {
                 document.getElementById('bookingListContainer').innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:20px;">Belum ada agenda riasan saat ini. Yuk, tambah booking baru!</p>';
                 loadStoredExpensesUI();
             }
         }
 
-        // --- HELPER PENYIMPANAN PENGELUARAN LOCALSTORAGE ---
         function getExpenseStorageKey() {
             return 'genmua_exp_' + appState.studioName.replace(/\s+/g, '_');
         }
@@ -442,8 +455,7 @@
             `);
         }
 
-        // --- RENDER UI BOOKING ---
-        function renderBookingToUI(id, name, service, date, money, note, statusPay) {
+        function renderBookingToUI(id, name, service, date, money, note, statusPay, phone = '') {
             const label = statusPay === 'Lunas' ? 'Lunas' : 'Pending';
             const bClass = statusPay === 'Lunas' ? 'done' : 'progress';
             const strMoney = money.toLocaleString('id-ID');
@@ -463,11 +475,11 @@
             
             let invoiceButtons = "";
             if (statusPay === 'Lunas') {
-                invoiceButtons = `<div class="status-badge done" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'lunas', '${date}')">📝 Struk Lunas</div>`;
+                invoiceButtons = `<div class="status-badge done" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'lunas', '${date}', '${phone}')">📝 Struk Lunas</div>`;
             } else {
                 invoiceButtons = `
-                    <div class="status-badge reminder" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'tagihan', '${date}')">🔔 Tagih Sisa</div>
-                    <div class="status-badge invoice" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'dp', '${date}')">📝 Struk DP</div>
+                    <div class="status-badge reminder" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'tagihan', '${date}', '${phone}')">🔔 Tagih Sisa</div>
+                    <div class="status-badge invoice" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'dp', '${date}', '${phone}')">📝 Struk DP</div>
                 `;
             }
 
@@ -485,6 +497,7 @@
         function handleFormSubmit(event) {
             event.preventDefault();
             const name = document.getElementById('clientNameInput').value;
+            const phone = document.getElementById('clientPhoneInput').value || '';
             const service = document.getElementById('serviceInput').value;
             const date = document.getElementById('dateInput').value;
             const statusPay = document.getElementById('paymentStatusInput').value;
@@ -505,12 +518,12 @@
             appState.uangMasuk += rawMoney;
             if(statusPay === 'DP') appState.belumLunasCount++;
             
-            renderBookingToUI(uniqueId, name, service, date, rawMoney, note, statusPay);
+            renderBookingToUI(uniqueId, name, service, date, rawMoney, note, statusPay, phone);
             updateDashboardStats(); showToast("✨ Data tersimpan di dasbor.");
 
             fetch(scriptURL, {
                 method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nama: name, layanan: service, tanggal: date, dp: rawMoney, catatan: note, status: statusPay, studio: appState.studioName })
+                body: JSON.stringify({ nama: name, hp: phone, layanan: service, tanggal: date, dp: rawMoney, catatan: note, status: statusPay, studio: appState.studioName })
             });
         }
 
@@ -523,7 +536,6 @@
 
             closeModal('expenseModal'); document.getElementById('expenseForm').reset();
             
-            // Simpan permanen di LocalStorage
             const stored = getStoredExpenses();
             stored.push({ id: uniqueId, desc: desc, nominal: nominal, rawNominal: rawNominal });
             saveStoredExpenses(stored);
@@ -552,7 +564,7 @@
             loadDataFromSheets();
         }
 
-        function openInvoicePreview(name, service, money, type, date) {
+        function openInvoicePreview(name, service, money, type, date, phone = '') {
             let templateText = "";
             const studio = appState.studioName.toUpperCase();
 
@@ -566,9 +578,14 @@
                 templateText = `Halo Kak *${name}*, ✨\nSemoga Kakak selalu dalam keadaan sehat dan bahagia ya!\n\nTidak terasa hari spesial Kakak sudah semakin dekat. Kami sangat excited untuk merias Kakak nanti! 🥰\n\nBersamaan dengan pesan ini, kami izin melampirkan pengingat rincian layanan booking di *${studio}*:\n\n💄 *Layanan:* ${service}\n📅 *Tgl Acara:* ${date}\n💳 *Uang Masuk (DP):* Rp ${money}\n\nUntuk kelancaran persiapan di hari H, mohon kesediaannya untuk menyelesaikan sisa pelunasan sesuai kesepakatan kita ya, Kak. Jika sudah berkenan melakukan transfer, mohon informasikan kembali ke kami beserta bukti resinya.\n\nTerima kasih banyak atas pengertian dan kerja samanya, Kak! 🙏`;
             }
 
+            const cleanPhone = formatWA(phone);
+            const targetUrl = cleanPhone 
+                ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(templateText)}`
+                : `https://wa.me/?text=${encodeURIComponent(templateText)}`;
+
             document.getElementById('invoicePreviewText').innerText = templateText;
             document.getElementById('whatsappSendBtn').onclick = function() { 
-                window.open(`https://wa.me/?text=${encodeURIComponent(templateText)}`, '_blank'); 
+                window.open(targetUrl, '_blank'); 
                 closeModal('invoicePreviewModal'); 
             };
             document.getElementById('invoicePreviewModal').classList.add('active');
@@ -590,7 +607,7 @@
 
         function buyProCode() {
             const waNumber = "6281234567890";
-            const textMsg = encodeURIComponent(`Halo Admin GenMUA,\n\nSaya tertarik untuk aktivasi akun PRO seharga *Rp 49.000 / 3 Bulan* untuk studio saya:\n\n*Studio:* ${appState.studioName}\n*Owner:* ${appState.ownerName}\n\nMohon info nomor rekening pembayarannya ya kak. Terima kasih!`);
+            const textMsg = encodeURIComponent(`Halo Admin GenMUA,\n\nSaya tertarik untuk aktivasi akun PRO seharga *Rp 35.000 (Sekali Bayar)* untuk studio saya:\n\n*Studio:* ${appState.studioName}\n*Owner:* ${appState.ownerName}\n\nMohon info nomor rekening pembayarannya ya kak. Terima kasih!`);
             window.open(`https://wa.me/${waNumber}?text=${textMsg}`, '_blank');
         }
 
