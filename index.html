@@ -306,8 +306,19 @@
     <div id="toast">✅ Berhasil!</div>
 
     <script>
-       
-                // --- AMBIL MEMORI DENGAN DEFAULT AMAN ---
+        // --- 1. FITUR MAGIC LINK (UNTUK JASA SETUP INSTAN) ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramStudio = urlParams.get('studio');
+        const paramOwner = urlParams.get('owner');
+        const paramCode = urlParams.get('code');
+
+        if (paramStudio) { localStorage.setItem('genmua_studioName', paramStudio); }
+        if (paramOwner) { localStorage.setItem('genmua_ownerName', paramOwner); }
+        if (paramCode && paramCode.toUpperCase() === "GENMUA2026") {
+            localStorage.setItem('genmua_isPro', 'true');
+        }
+
+        // --- 2. AMBIL MEMORI DENGAN DEFAULT AMAN ---
         let appState = {
             studioName: localStorage.getItem('genmua_studioName') || 'Nela Mua Studio',
             ownerName: localStorage.getItem('genmua_ownerName') || 'Nela',
@@ -343,7 +354,13 @@
                 } 
                 else if (activeDelete.type === 'expense') {
                     const e = document.getElementById('exp-' + activeDelete.id);
-                    if(e) e.remove(); appState.uangKeluar = Math.max(0, appState.uangKeluar - activeDelete.amount);
+                    if(e) e.remove(); 
+                    appState.uangKeluar = Math.max(0, appState.uangKeluar - activeDelete.amount);
+                    
+                    // Hapus data dari LocalStorage
+                    let stored = getStoredExpenses();
+                    stored = stored.filter(item => String(item.id) !== String(activeDelete.id));
+                    saveStoredExpenses(stored);
                 }
                 updateDashboardStats(); closeModal('deleteConfirmModal');
                 showToast("🗑️ Data dihapus dari tampilan layar.");
@@ -380,13 +397,52 @@
                         renderBookingToUI(uId, item.nama, item.layanan, item.tanggal, rawMoney, item.catatan, item.status);
                     });
                 }
-                updateDashboardStats();
+                loadStoredExpensesUI(); // Muat riwayat pengeluaran permanen saat refresh
             } catch (error) {
                 document.getElementById('bookingListContainer').innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:20px;">Belum ada agenda riasan saat ini. Yuk, tambah booking baru!</p>';
+                loadStoredExpensesUI();
             }
         }
 
-        // --- RENDER UI ---
+        // --- HELPER PENYIMPANAN PENGELUARAN LOCALSTORAGE ---
+        function getExpenseStorageKey() {
+            return 'genmua_exp_' + appState.studioName.replace(/\s+/g, '_');
+        }
+
+        function getStoredExpenses() {
+            try {
+                return JSON.parse(localStorage.getItem(getExpenseStorageKey()) || '[]');
+            } catch(e) {
+                return [];
+            }
+        }
+
+        function saveStoredExpenses(expArray) {
+            localStorage.setItem(getExpenseStorageKey(), JSON.stringify(expArray));
+        }
+
+        function loadStoredExpensesUI() {
+            document.getElementById('financeListContainer').innerHTML = '';
+            appState.uangKeluar = 0;
+            const stored = getStoredExpenses();
+            
+            stored.forEach(item => {
+                appState.uangKeluar += item.rawNominal;
+                renderExpenseToUI(item.id, item.desc, item.nominal, item.rawNominal);
+            });
+            updateDashboardStats();
+        }
+
+        function renderExpenseToUI(id, desc, nominal, rawNominal) {
+            document.getElementById('financeListContainer').insertAdjacentHTML('afterbegin', `
+                <div class="booking-box" id="exp-${id}">
+                    <div><div class="client-name">${desc}</div><div class="client-service">Pengeluaran</div></div>
+                    <div class="right-actions"><div class="status-badge expense">- Rp ${nominal}</div><button class="btn-delete-item" onclick="triggerDelete('${id}', 'expense', ${rawNominal}, '')">Hapus</button></div>
+                </div>
+            `);
+        }
+
+        // --- RENDER UI BOOKING ---
         function renderBookingToUI(id, name, service, date, money, note, statusPay) {
             const label = statusPay === 'Lunas' ? 'Lunas' : 'Pending';
             const bClass = statusPay === 'Lunas' ? 'done' : 'progress';
@@ -405,7 +461,6 @@
                 </div>
             `);
             
-            // MENU INVOICE
             let invoiceButtons = "";
             if (statusPay === 'Lunas') {
                 invoiceButtons = `<div class="status-badge done" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'lunas', '${date}')">📝 Struk Lunas</div>`;
@@ -442,7 +497,6 @@
             closeModal('bookingModal'); document.getElementById('bookingForm').reset();
             if(appState.projectCount === 0) document.getElementById('bookingListContainer').innerHTML = '';
 
-            // TAMBAH HITUNGAN KE PERANGKAT
             let deviceCreatedCount = parseInt(localStorage.getItem('genmua_deviceCreatedCount') || '0');
             deviceCreatedCount++;
             localStorage.setItem('genmua_deviceCreatedCount', deviceCreatedCount.toString());
@@ -468,18 +522,18 @@
             const uniqueId = Date.now();
 
             closeModal('expenseModal'); document.getElementById('expenseForm').reset();
-            appState.uangKeluar += rawNominal;
+            
+            // Simpan permanen di LocalStorage
+            const stored = getStoredExpenses();
+            stored.push({ id: uniqueId, desc: desc, nominal: nominal, rawNominal: rawNominal });
+            saveStoredExpenses(stored);
 
-            document.getElementById('financeListContainer').insertAdjacentHTML('afterbegin', `
-                <div class="booking-box" id="exp-${uniqueId}">
-                    <div><div class="client-name">${desc}</div><div class="client-service">Pengeluaran</div></div>
-                    <div class="right-actions"><div class="status-badge expense">- Rp ${nominal}</div><button class="btn-delete-item" onclick="triggerDelete('${uniqueId}', 'expense', ${rawNominal}, '')">Hapus</button></div>
-                </div>
-            `);
-            updateDashboardStats(); showToast("💸 Pengeluaran dicatat!");
+            appState.uangKeluar += rawNominal;
+            renderExpenseToUI(uniqueId, desc, nominal, rawNominal);
+            updateDashboardStats(); 
+            showToast("💸 Pengeluaran dicatat!");
         }
 
-        // --- PERBAIKAN FATAL: UPDATE PROFIL TANPA REFRESH HALAMAN ---
         function handleSettingsSubmit(event) {
             event.preventDefault();
             const newStudio = document.getElementById('settingStudioName').value.trim();
@@ -495,10 +549,9 @@
             document.getElementById('headerOwnerName').innerText = "Owner: " + newOwner;
             
             showToast("✨ Profil studio berhasil diperbarui!");
-            loadDataFromSheets(); // Panggil ulang data secara dinamis tanpa browser reload
+            loadDataFromSheets();
         }
 
-        // --- COPYWRITING INVOICE ELEGAN ---
         function openInvoicePreview(name, service, money, type, date) {
             let templateText = "";
             const studio = appState.studioName.toUpperCase();
@@ -521,7 +574,6 @@
             document.getElementById('invoicePreviewModal').classList.add('active');
         }
 
-        // --- LOGIKA AKTIVASI PRO ---
         function openUpgradeModal() { closeModal('limitModal'); document.getElementById('upgradeModal').classList.add('active'); }
 
         function verifyProCode() {
@@ -537,7 +589,6 @@
         }
 
         function buyProCode() {
-            // GANTI NOMOR INI DENGAN NOMOR WA ANDA SENDIRI
             const waNumber = "6281234567890";
             const textMsg = encodeURIComponent(`Halo Admin GenMUA,\n\nSaya tertarik untuk aktivasi akun PRO seharga *Rp 49.000 / 3 Bulan* untuk studio saya:\n\n*Studio:* ${appState.studioName}\n*Owner:* ${appState.ownerName}\n\nMohon info nomor rekening pembayarannya ya kak. Terima kasih!`);
             window.open(`https://wa.me/${waNumber}?text=${textMsg}`, '_blank');
@@ -552,7 +603,6 @@
             if(document.getElementById('btnUpgradePro')) document.getElementById('btnUpgradePro').style.display = 'none';
         }
 
-        // --- UPDATE DASBOR ---
         function updateDashboardStats() {
             let netProfit = appState.uangMasuk - appState.uangKeluar;
             
@@ -589,7 +639,6 @@
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function openExpenseModal() { document.getElementById('expenseModal').classList.add('active'); }
         
-        // CEK LIMIT TERLINDUNGI DARI MENGGANTI NAMA STUDIO
         function openBookingModal() { 
             let deviceCreatedCount = parseInt(localStorage.getItem('genmua_deviceCreatedCount') || '0');
             if (!appState.isPro && (appState.projectCount >= 5 || deviceCreatedCount >= 5)) { 
