@@ -307,24 +307,7 @@
 
     <script>
        
-        // --- 1. FITUR MAGIC LINK (UNTUK JASA SETUP INSTAN) ---
-        const urlParams = new URLSearchParams(window.location.search);
-        const paramStudio = urlParams.get('studio');
-        const paramOwner = urlParams.get('owner');
-        const paramCode = urlParams.get('code');
-
-        // Jika link dibuka dengan URL Parameter dari Admin, otomatis simpan ke HP MUA
-        if (paramStudio) {
-            localStorage.setItem('genmua_studioName', paramStudio);
-        }
-        if (paramOwner) {
-            localStorage.setItem('genmua_ownerName', paramOwner);
-        }
-        if (paramCode && paramCode.toUpperCase() === "GENMUA2026") {
-            localStorage.setItem('genmua_isPro', 'true');
-        }
-
-        // --- AMBIL MEMORI DENGAN DEFAULT AMAN ---
+                // --- AMBIL MEMORI DENGAN DEFAULT AMAN ---
         let appState = {
             studioName: localStorage.getItem('genmua_studioName') || 'Nela Mua Studio',
             ownerName: localStorage.getItem('genmua_ownerName') || 'Nela',
