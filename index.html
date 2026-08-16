@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GenMUA | Studio Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Library Pembuat Gambar -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
@@ -66,7 +65,7 @@
         .action-card-btn { width: 100%; padding: 14px; background: var(--accent); color: #FFFFFF; border: none; border-radius: 14px; font-size: 13px; font-weight: 700; cursor: pointer; margin-bottom: 16px; }
 
         /* BOTTOM NAV */
-        .bottom-nav { display: flex; justify-content: space-around; background: #FFFFFF; border-top: 1px solid var(--border); padding: 12px 0; position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; }
+        .bottom-nav { display: flex; justify-content: space-around; background: #FFFFFF; border-top: 1px solid var(--border); padding: 12px 0; position: absolute; bottom: 0; left: 0; right: 0; z-index: 999; }
         .nav-item { text-align: center; color: var(--text-muted); font-size: 10px; font-weight: 650; cursor: pointer; background: none; border: none; flex: 1; }
         .nav-item.active { color: var(--accent); }
         .nav-item div { font-size: 16px; margin-bottom: 2px; }
@@ -75,7 +74,7 @@
         .settings-card { background: #FBF9F7; border: 1px solid var(--border); border-radius: 18px; padding: 20px; margin-bottom: 16px; }
         .settings-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
 
-        /* MODAL OVERLAY (DIPERBAIKI MENJADI FIXED) */
+        /* MODAL */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(61, 53, 50, 0.5); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
         .modal-sheet { background: #FFFFFF; width: 100%; max-width: 420px; max-height: 85vh; border-radius: 24px 24px 0 0; padding: 24px; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); animation: slideUp 0.3s ease-out; overflow-y: auto; }
@@ -379,20 +378,12 @@
     <div id="toast">✅ Berhasil!</div>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const paramStudio = urlParams.get('studio');
-        const paramOwner = urlParams.get('owner');
-        const paramCode = urlParams.get('code');
-
-        if (paramStudio) { localStorage.setItem('genmua_studioName', paramStudio); }
-        if (paramOwner) { localStorage.setItem('genmua_ownerName', paramOwner); }
-        if (paramCode && paramCode.toUpperCase() === "GENMUA2026") { localStorage.setItem('genmua_isPro', 'true'); }
-
+        // 1. Inisialisasi Data Aman (Anti-Crash)
         let appState = {
-            studioName: localStorage.getItem('genmua_studioName') || 'Nela Mua Studio',
-            ownerName: localStorage.getItem('genmua_ownerName') || 'Nela',
-            bankInfo: localStorage.getItem('genmua_bankInfo') || 'BCA: 123456789',
-            isPro: localStorage.getItem('genmua_isPro') === 'true', // <-- TYPO SUDAH DIPERBAIKI DISINI
+            studioName: 'Nela Mua Studio',
+            ownerName: 'Nela',
+            bankInfo: 'BCA: 123456789',
+            isPro: false,
             projectCount: 0, 
             uangMasuk: 0, 
             uangKeluar: 0, 
@@ -402,15 +393,43 @@
         let activeDelete = { id: null, type: null, amount: 0, status: '' };
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyEMTMyqg9tKz54icmTijvjVXbYBwzR5lDGPnaIhwkw2ehUYwmZ_1iU08ouYWNxu5arjQ/exec';
 
-        document.getElementById('headerStudioName').innerText = appState.studioName;
-        document.getElementById('headerOwnerName').innerText = "Owner: " + appState.ownerName;
-        document.getElementById('settingStudioName').value = appState.studioName;
-        document.getElementById('settingOwnerName').value = appState.ownerName;
-        document.getElementById('settingBankInfo').value = appState.bankInfo;
-        
-        if(appState.isPro) activateProUI();
-        window.addEventListener('DOMContentLoaded', loadDataFromSheets);
+        try {
+            // Cek URL params dengan aman
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramStudio = urlParams.get('studio');
+            const paramOwner = urlParams.get('owner');
+            const paramCode = urlParams.get('code');
 
+            if (paramStudio) localStorage.setItem('genmua_studioName', paramStudio);
+            if (paramOwner) localStorage.setItem('genmua_ownerName', paramOwner);
+            if (paramCode && paramCode.toUpperCase() === "GENMUA2026") localStorage.setItem('genmua_isPro', 'true');
+
+            // Ambil dari local storage (Penulisan SANGAT AMAN)
+            appState.studioName = localStorage.getItem('genmua_studioName') || 'Nela Mua Studio';
+            appState.ownerName = localStorage.getItem('genmua_ownerName') || 'Nela';
+            appState.bankInfo = localStorage.getItem('genmua_bankInfo') || 'BCA: 123456789';
+            appState.isPro = (localStorage.getItem('genmua_isPro') === 'true');
+        } catch (e) {
+            console.log("Abaikan jika diakses via mode offline");
+        }
+
+        // 2. Terapkan Data ke Layar
+        try {
+            document.getElementById('headerStudioName').innerText = appState.studioName;
+            document.getElementById('headerOwnerName').innerText = "Owner: " + appState.ownerName;
+            document.getElementById('settingStudioName').value = appState.studioName;
+            document.getElementById('settingOwnerName').value = appState.ownerName;
+            document.getElementById('settingBankInfo').value = appState.bankInfo;
+            if(appState.isPro) activateProUI();
+        } catch(e) {}
+
+        // 3. Jalankan Script Saat Halaman Siap
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDataFromSheets();
+            showToast("✅ Sistem Siap Digunakan!");
+        });
+
+        // ================= FUNGSIONALITAS UTAMA ================= 
         document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
             if (activeDelete.id) {
                 if (activeDelete.type === 'booking') {
@@ -716,7 +735,8 @@
             document.getElementById('headerOwnerBadge').style.background = "#E8F5E9";
             document.getElementById('headerOwnerBadge').style.color = "#2E7D32";
             document.getElementById('accountStatusText').innerText = "PRO ACCOUNT (Aktif Tanpa Batas)";
-            if(document.getElementById('btnUpgradePro')) document.getElementById('btnUpgradePro').style.display = 'none';
+            const btnPro = document.getElementById('btnUpgradePro');
+            if(btnPro) btnPro.style.display = 'none';
         }
 
         function updateDashboardStats() {
@@ -749,7 +769,13 @@
             input.value = rupiah;
         }
 
-        function showToast(msg) { let t = document.getElementById("toast"); t.innerText = msg; t.className = "show"; setTimeout(() => { t.className = t.className.replace("show", ""); }, 2500); }
+        function showToast(msg) { 
+            let t = document.getElementById("toast"); 
+            t.innerText = msg; 
+            t.className = "show"; 
+            setTimeout(() => { t.className = t.className.replace("show", ""); }, 2500); 
+        }
+
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function openExpenseModal() { document.getElementById('expenseModal').classList.add('active'); }
         
