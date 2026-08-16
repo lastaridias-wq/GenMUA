@@ -75,10 +75,10 @@
         .settings-card { background: #FBF9F7; border: 1px solid var(--border); border-radius: 18px; padding: 20px; margin-bottom: 16px; }
         .settings-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
 
-        /* MODAL */
-        .modal-overlay { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(61, 53, 50, 0.5); backdrop-filter: blur(4px); z-index: 100; justify-content: center; align-items: flex-end; }
+        /* MODAL OVERLAY (DIPERBAIKI MENJADI FIXED) */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(61, 53, 50, 0.5); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
-        .modal-sheet { background: #FFFFFF; width: 100%; max-height: 85vh; border-radius: 24px 24px 0 0; padding: 24px; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); animation: slideUp 0.3s ease-out; overflow-y: auto; }
+        .modal-sheet { background: #FFFFFF; width: 100%; max-width: 420px; max-height: 85vh; border-radius: 24px 24px 0 0; padding: 24px; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); animation: slideUp 0.3s ease-out; overflow-y: auto; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-header h3 { font-size: 16px; font-weight: 700; }
@@ -90,7 +90,7 @@
         .form-group textarea { resize: none; height: 60px; }
         .submit-btn { width: 100%; padding: 14px; background: var(--text-main); color: #FFFFFF; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; }
 
-        #toast { visibility: hidden; min-width: 240px; background-color: #3D3532; color: #fff; text-align: center; border-radius: 12px; padding: 12px 16px; position: fixed; z-index: 1000; left: 50%; bottom: 70px; transform: translateX(-50%); font-size: 12px; font-weight: 600; opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
+        #toast { visibility: hidden; min-width: 240px; background-color: #3D3532; color: #fff; text-align: center; border-radius: 12px; padding: 12px 16px; position: fixed; z-index: 2000; left: 50%; bottom: 70px; transform: translateX(-50%); font-size: 12px; font-weight: 600; opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
         #toast.show { visibility: visible; opacity: 1; bottom: 90px; }
         .invoice-preview-box { background: #FBF9F7; border: 1px solid var(--border); border-radius: 12px; padding: 14px; font-size: 12px; text-align: left; white-space: pre-line; margin-bottom: 16px; color: #5C4F4A; line-height: 1.5; }
 
@@ -216,7 +216,7 @@
             <button class="nav-item" id="navAkun" onclick="switchPage('akun')"><div>⚙️</div>Akun</button>
         </div>
 
-        <!-- MODAL BOOKING (Diperbarui dengan Harga Penuh & DP) -->
+        <!-- MODAL BOOKING -->
         <div class="modal-overlay" id="bookingModal">
             <div class="modal-sheet">
                 <div class="modal-header">
@@ -392,14 +392,12 @@
             studioName: localStorage.getItem('genmua_studioName') || 'Nela Mua Studio',
             ownerName: localStorage.getItem('genmua_ownerName') || 'Nela',
             bankInfo: localStorage.getItem('genmua_bankInfo') || 'BCA: 123456789',
-            isPro: localStorage.getItem('genmua_isPro'] === 'true',
+            isPro: localStorage.getItem('genmua_isPro') === 'true', // <-- TYPO SUDAH DIPERBAIKI DISINI
             projectCount: 0, 
             uangMasuk: 0, 
             uangKeluar: 0, 
             belumLunasCount: 0
         };
-        // Perbaikan pembacaan isPro
-        appState.isPro = localStorage.getItem('genmua_isPro') === 'true';
 
         let activeDelete = { id: null, type: null, amount: 0, status: '' };
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyEMTMyqg9tKz54icmTijvjVXbYBwzR5lDGPnaIhwkw2ehUYwmZ_1iU08ouYWNxu5arjQ/exec';
@@ -467,7 +465,7 @@
                     myData.forEach((item, index) => {
                         const uId = item.id || ('gs-' + index);
                         let rawDp = parseInt(item.dp) || 0;
-                        let rawTotal = parseInt(item.totalHarga) || rawDp; // Fallback jika data lama kosong
+                        let rawTotal = parseInt(item.totalHarga) || rawDp;
                         let phoneNum = item.hp || item.phone || '';
                         
                         appState.projectCount++; 
@@ -622,7 +620,6 @@
             loadDataFromSheets();
         }
 
-        // --- SISTEM INVOICE & RENDER GAMBAR DENGAN PENGURANGAN OTOMATIS ---
         function openInvoicePreview(name, service, totalHarga, dpAmount, type, date, phone = '') {
             let templateText = "";
             const studio = appState.studioName.toUpperCase();
@@ -632,7 +629,6 @@
             const strDp = dpAmount.toLocaleString('id-ID');
             const strSisa = sisaPelunasan.toLocaleString('id-ID');
 
-            // 1. Copywriting Pesan WhatsApp Otomatis
             if (type === 'dp') {
                 templateText = `Halo Kak ${name},\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut rincian tanda jadi (DP) & total paket Kakak:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Harga Paket:* Rp ${strTotal}\n- *DP Dibayar:* Rp ${strDp}\n- *Sisa Pelunasan:* Rp ${strSisa}\n- *Status:* Booking Terkonfirmasi (Pending Pelunasan)\n\nJadwal Kakak sudah aman & tercatat di sistem kami. Terima kasih banyak!`;
             } 
@@ -643,7 +639,6 @@
                 templateText = `Halo Kak ${name},\n\nSemoga Kakak sehat selalu.\n\nTidak terasa hari spesial Kakak sudah semakin dekat. Bersamaan dengan pesan ini, kami izin melampirkan pengingat sisa tagihan di *${studio}*:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Total Paket:* Rp ${strTotal}\n- *Sudah Dibayar (DP):* Rp ${strDp}\n- *Sisa Tagihan:* Rp ${strSisa}\n\nMohon kesediaannya untuk menyelesaikan sisa pelunasan tersebut. Jika sudah transfer, mohon infokan bukti resinya ya Kak.\n\nTerima kasih banyak atas pengertian & kerja samanya!`;
             }
 
-            // 2. Set Data untuk Template Gambar HTML2Canvas
             document.getElementById('imgInvStudio').innerText = studio;
             document.getElementById('imgInvNo').innerText = "INV-" + Date.now().toString().slice(-5);
             document.getElementById('imgInvDate').innerText = date;
@@ -669,7 +664,6 @@
                 totalBoxTitle.innerHTML = `SISA KEKURANGAN: <span id="imgInvSisa">Rp ${strSisa}</span>`;
             }
 
-            // 3. Tombol WhatsApp Action
             const cleanPhone = formatWA(phone);
             const targetUrl = cleanPhone 
                 ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(templateText)}`
@@ -682,7 +676,6 @@
                 closeModal('invoicePreviewModal'); 
             };
             
-            // 4. Tombol Download Gambar Action (HTML2Canvas)
             document.getElementById('downloadImageBtn').onclick = function() {
                 const captureArea = document.getElementById('invoice-capture-area');
                 html2canvas(captureArea, { scale: 3 }).then(canvas => {
@@ -697,7 +690,6 @@
             document.getElementById('invoicePreviewModal').classList.add('active');
         }
 
-        // --- SISTEM AKUN ---
         function openUpgradeModal() { closeModal('limitModal'); document.getElementById('upgradeModal').classList.add('active'); }
 
         function verifyProCode() {
