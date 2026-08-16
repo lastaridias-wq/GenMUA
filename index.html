@@ -103,12 +103,12 @@
         .inv-table-img { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 12px; text-align: center; }
         .inv-table-img th { background: #3D3532; color: #fff; padding: 10px; border: 1px solid #3D3532; }
         .inv-table-img td { padding: 12px; border: 1px solid #EAE3DD; color: #3D3532; }
-        .inv-subtotal { text-align: right; font-size: 13px; margin-bottom: 10px; }
-        .inv-total-box { background: linear-gradient(90deg, #E2C9AB 0%, #C5A880 100%); color: #fff; padding: 12px; font-weight: bold; font-size: 16px; text-align: center; border-radius: 8px; margin-bottom: 12px; letter-spacing: 0.5px; }
-        .inv-status-img { padding: 10px; text-align: center; font-weight: bold; border-radius: 8px; color: #fff; letter-spacing: 1px; }
+        .inv-subtotal { font-size: 12px; margin-bottom: 6px; display: flex; justify-content: space-between; }
+        .inv-total-box { background: linear-gradient(90deg, #E2C9AB 0%, #C5A880 100%); color: #fff; padding: 12px; font-weight: bold; font-size: 15px; text-align: center; border-radius: 8px; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .inv-status-img { padding: 10px; text-align: center; font-weight: bold; border-radius: 8px; color: #fff; letter-spacing: 1px; font-size: 12px; }
         .inv-status-img.pending { background: #ED6C02; }
         .inv-status-img.lunas { background: #2E7D32; }
-        .inv-footer-img { margin-top: 20px; font-size: 12px; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #EAE3DD; padding-top: 15px; }
+        .inv-footer-img { margin-top: 20px; font-size: 11px; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #EAE3DD; padding-top: 15px; }
     </style>
 </head>
 <body>
@@ -193,9 +193,8 @@
                         <label>Nama Pemilik (Owner)</label>
                         <input type="text" id="settingOwnerName" required>
                     </div>
-                    <!-- Tambahan Bank Info -->
                     <div class="form-group">
-                        <label>Nama Bank & No Rekening (Opsional)</label>
+                        <label>Nama Bank & No Rekening</label>
                         <input type="text" id="settingBankInfo" placeholder="Cth: BCA 123456789">
                     </div>
                     <button type="submit" class="submit-btn" style="margin-top: 5px;">Simpan Profil Studio</button>
@@ -217,7 +216,7 @@
             <button class="nav-item" id="navAkun" onclick="switchPage('akun')"><div>⚙️</div>Akun</button>
         </div>
 
-        <!-- MODAL BOOKING -->
+        <!-- MODAL BOOKING (Diperbarui dengan Harga Penuh & DP) -->
         <div class="modal-overlay" id="bookingModal">
             <div class="modal-sheet">
                 <div class="modal-header">
@@ -238,9 +237,13 @@
                     <div class="form-group"><label>Tanggal Acara</label><input type="date" id="dateInput" required></div>
                     <div class="form-group">
                         <label>Status Pembayaran</label>
-                        <select id="paymentStatusInput"><option value="DP">DP</option><option value="Lunas">Lunas</option></select>
+                        <select id="paymentStatusInput">
+                            <option value="DP">DP (Sebagian)</option>
+                            <option value="Lunas">Lunas (Terbayar Penuh)</option>
+                        </select>
                     </div>
-                    <div class="form-group"><label>Nominal (Rp)</label><input type="text" id="dpInput" oninput="formatRupiah(this)" required></div>
+                    <div class="form-group"><label>Harga Total Paket (Rp)</label><input type="text" id="totalHargaInput" oninput="formatRupiah(this)" required placeholder="Cth: 1.500.000"></div>
+                    <div class="form-group"><label>Nominal Bayar / DP Masuk (Rp)</label><input type="text" id="dpInput" oninput="formatRupiah(this)" required placeholder="Cth: 500.000"></div>
                     <div class="form-group"><label>Catatan Khusus Riasan</label><textarea id="noteInput" placeholder="Cth: Request adat, tipe kulit..."></textarea></div>
                     <button type="submit" class="submit-btn">Simpan Booking</button>
                 </form>
@@ -270,7 +273,6 @@
                     <button class="close-modal" onclick="closeModal('invoicePreviewModal')">✕</button>
                 </div>
                 <div class="invoice-preview-box" id="invoicePreviewText"></div>
-                <!-- Tombol Action Baru -->
                 <button class="submit-btn" style="background: var(--accent); margin-bottom: 8px; color: white;" id="downloadImageBtn">⬇️ Download Foto Invoice (Gambar)</button>
                 <button class="submit-btn" style="background: #25D366;" id="whatsappSendBtn">📲 Kirim Teks ke WhatsApp</button>
             </div>
@@ -327,12 +329,11 @@
 
     </div>
 
-    <!-- AREA HIDDEN (TEMPLATE GAMBAR INVOICE) -->
-    <!-- Elemen ini dirancang agar saat di download via HTML2Canvas, hasilnya sangat rapi -->
+    <!-- AREA HIDDEN (TEMPLATE GAMBAR INVOICE DENGAN DETAIL RINCIAN) -->
     <div id="invoice-capture-area">
         <div class="inv-header-img">
             <h1 id="imgInvStudio">GenMUA</h1>
-            <h2>INVOICE PEMBAYARAN</h2>
+            <h2 id="imgInvTitleLabel">INVOICE PEMBAYARAN</h2>
         </div>
         <div class="inv-meta-grid">
             <div><span style="color:#8C827D">No. Invoice:</span><br><b id="imgInvNo">INV-001</b></div>
@@ -343,22 +344,29 @@
             <thead>
                 <tr>
                     <th>Layanan Rias</th>
-                    <th>Harga</th>
+                    <th>Harga Total</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td id="imgInvService" style="font-weight: 600;">Paket Rias</td>
-                    <td id="imgInvPrice">Rp 0</td>
+                    <td id="imgInvTotalPrice">Rp 0</td>
                 </tr>
             </tbody>
         </table>
-        <div class="inv-subtotal"><b>Subtotal:</b> <span id="imgInvSub">Rp 0</span></div>
-        <div class="inv-total-box">**TOTAL DANA MASUK: <span id="imgInvTotal">Rp 0</span></div>
-        <div id="imgInvStatusBox" class="inv-status-img pending">**PENDING / MENUNGGU SISA PEMBAYARAN</div>
+        
+        <!-- Rincian Perhitungan Keuangan di Gambar Invoice -->
+        <div style="background: #FBF9F7; padding: 10px; border-radius: 8px; border: 1px solid #EAE3DD; margin-bottom: 10px;">
+            <div class="inv-subtotal"><span style="color:#8C827D;">Total Harga Paket:</span> <b id="imgInvSub">Rp 0</b></div>
+            <div class="inv-subtotal"><span style="color:#8C827D;">Sudah Dibayar (DP):</span> <b id="imgInvDpPaid" style="color: #2E7D32;">Rp 0</b></div>
+        </div>
+
+        <div class="inv-total-box" id="imgInvTotalBoxTitle">SISA Kekurangan: <span id="imgInvSisa">Rp 0</span></div>
+        <div id="imgInvStatusBox" class="inv-status-img pending">PENDING / MENUNGGU SISA PEMBAYARAN</div>
+        
         <div class="inv-footer-img">
             <div style="line-height:1.5;">
-                <b id="imgInvBank" style="font-size: 13px;">BCA: 123456789</b><br>
+                <b id="imgInvBank" style="font-size: 12px;">BCA: 123456789</b><br>
                 <span style="color:#8C827D;">a/n <span id="imgInvOwner">Owner Name</span></span>
             </div>
             <div style="text-align:right; color:#8C827D;">
@@ -371,7 +379,6 @@
     <div id="toast">✅ Berhasil!</div>
 
     <script>
-        // --- INISIALISASI ---
         const urlParams = new URLSearchParams(window.location.search);
         const paramStudio = urlParams.get('studio');
         const paramOwner = urlParams.get('owner');
@@ -385,17 +392,18 @@
             studioName: localStorage.getItem('genmua_studioName') || 'Nela Mua Studio',
             ownerName: localStorage.getItem('genmua_ownerName') || 'Nela',
             bankInfo: localStorage.getItem('genmua_bankInfo') || 'BCA: 123456789',
-            isPro: localStorage.getItem('genmua_isPro') === 'true',
+            isPro: localStorage.getItem('genmua_isPro'] === 'true',
             projectCount: 0, 
             uangMasuk: 0, 
             uangKeluar: 0, 
             belumLunasCount: 0
         };
-        let activeDelete = { id: null, type: null, amount: 0, status: '' };
+        // Perbaikan pembacaan isPro
+        appState.isPro = localStorage.getItem('genmua_isPro') === 'true';
 
+        let activeDelete = { id: null, type: null, amount: 0, status: '' };
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyEMTMyqg9tKz54icmTijvjVXbYBwzR5lDGPnaIhwkw2ehUYwmZ_1iU08ouYWNxu5arjQ/exec';
 
-        // SET IDENTITAS DI MUKA
         document.getElementById('headerStudioName').innerText = appState.studioName;
         document.getElementById('headerOwnerName').innerText = "Owner: " + appState.ownerName;
         document.getElementById('settingStudioName').value = appState.studioName;
@@ -403,10 +411,8 @@
         document.getElementById('settingBankInfo').value = appState.bankInfo;
         
         if(appState.isPro) activateProUI();
-
         window.addEventListener('DOMContentLoaded', loadDataFromSheets);
 
-        // --- SISTEM HAPUS DATA ---
         document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
             if (activeDelete.id) {
                 if (activeDelete.type === 'booking') {
@@ -435,7 +441,6 @@
             document.getElementById('deleteConfirmModal').classList.add('active');
         }
 
-        // --- HELPER FORMAT WHATSAPP ---
         function formatWA(phone) {
             if (!phone) return '';
             let cleaned = phone.replace(/[^0-9]/g, '');
@@ -461,11 +466,15 @@
                 } else {
                     myData.forEach((item, index) => {
                         const uId = item.id || ('gs-' + index);
-                        let rawMoney = parseInt(item.dp) || 0;
+                        let rawDp = parseInt(item.dp) || 0;
+                        let rawTotal = parseInt(item.totalHarga) || rawDp; // Fallback jika data lama kosong
                         let phoneNum = item.hp || item.phone || '';
-                        appState.projectCount++; appState.uangMasuk += rawMoney;
+                        
+                        appState.projectCount++; 
+                        appState.uangMasuk += rawDp;
                         if(item.status === 'DP') appState.belumLunasCount++;
-                        renderBookingToUI(uId, item.nama, item.layanan, item.tanggal, rawMoney, item.catatan, item.status, phoneNum);
+                        
+                        renderBookingToUI(uId, item.nama, item.layanan, item.tanggal, rawTotal, rawDp, item.catatan, item.status, phoneNum);
                     });
                 }
                 loadStoredExpensesUI();
@@ -499,46 +508,46 @@
             `);
         }
 
-        function renderBookingToUI(id, name, service, date, money, note, statusPay, phone = '') {
+        function renderBookingToUI(id, name, service, date, totalHarga, dpAmount, note, statusPay, phone = '') {
             const label = statusPay === 'Lunas' ? 'Lunas' : 'Pending';
             const bClass = statusPay === 'Lunas' ? 'done' : 'progress';
-            const strMoney = money.toLocaleString('id-ID');
+            const strTotal = totalHarga.toLocaleString('id-ID');
+            const strDp = dpAmount.toLocaleString('id-ID');
 
             document.getElementById('bookingListContainer').insertAdjacentHTML('afterbegin', `
                 <div class="booking-box" id="b-${id}">
-                    <div><div class="client-name">${name}</div><div class="client-service">${service} • ${date}<br><small>${note}</small></div></div>
-                    <div class="right-actions"><div class="status-badge ${bClass}">${label}</div><button class="btn-delete-item" onclick="triggerDelete('${id}', 'booking', ${money}, '${statusPay}')">Hapus</button></div>
+                    <div><div class="client-name">${name}</div><div class="client-service">${service} • ${date}<br><small>Total: Rp ${strTotal} | DP: Rp ${strDp}</small></div></div>
+                    <div class="right-actions"><div class="status-badge ${bClass}">${label}</div><button class="btn-delete-item" onclick="triggerDelete('${id}', 'booking', ${dpAmount}, '${statusPay}')">Hapus</button></div>
                 </div>
             `);
             document.getElementById('clientListContainer').insertAdjacentHTML('afterbegin', `
                 <div class="booking-box" id="c-${id}">
-                    <div><div class="client-name">${name}</div><div class="client-service">${service} • ${date}<br>Masuk: Rp ${strMoney}</div></div>
-                    <div class="right-actions"><div class="status-badge ${bClass}">${statusPay === 'Lunas' ? 'Lunas' : 'DP Terbayar'}</div><button class="btn-delete-item" onclick="triggerDelete('${id}', 'booking', ${money}, '${statusPay}')">Hapus</button></div>
+                    <div><div class="client-name">${name}</div><div class="client-service">${service} • ${date}<br>Paket: Rp ${strTotal} (Masuk: Rp ${strDp})</div></div>
+                    <div class="right-actions"><div class="status-badge ${bClass}">${statusPay === 'Lunas' ? 'Lunas' : 'DP Terbayar'}</div><button class="btn-delete-item" onclick="triggerDelete('${id}', 'booking', ${dpAmount}, '${statusPay}')">Hapus</button></div>
                 </div>
             `);
             
             let invoiceButtons = "";
             if (statusPay === 'Lunas') {
-                invoiceButtons = `<div class="status-badge done" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'lunas', '${date}', '${phone}')">📝 Struk Lunas</div>`;
+                invoiceButtons = `<div class="status-badge done" onclick="openInvoicePreview('${name}', '${service}', ${totalHarga}, ${dpAmount}, 'lunas', '${date}', '${phone}')">📝 Struk Lunas</div>`;
             } else {
                 invoiceButtons = `
-                    <div class="status-badge reminder" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'tagihan', '${date}', '${phone}')">🔔 Tagih Sisa</div>
-                    <div class="status-badge invoice" onclick="openInvoicePreview('${name}', '${service}', '${strMoney}', 'dp', '${date}', '${phone}')">📝 Struk DP</div>
+                    <div class="status-badge reminder" onclick="openInvoicePreview('${name}', '${service}', ${totalHarga}, ${dpAmount}, 'tagihan', '${date}', '${phone}')">🔔 Tagih Sisa</div>
+                    <div class="status-badge invoice" onclick="openInvoicePreview('${name}', '${service}', ${totalHarga}, ${dpAmount}, 'dp', '${date}', '${phone}')">📝 Struk DP</div>
                 `;
             }
 
             document.getElementById('invoiceListContainer').insertAdjacentHTML('afterbegin', `
                 <div class="booking-box" id="i-${id}">
-                    <div><div class="client-name">${name}</div><div class="client-service">${service}<br>Dana Masuk: Rp ${strMoney}</div></div>
+                    <div><div class="client-name">${name}</div><div class="client-service">${service}<br>Total: Rp ${strTotal} | DP: Rp ${strDp}</div></div>
                     <div class="right-actions">
                         ${invoiceButtons}
-                        <button class="btn-delete-item" onclick="triggerDelete('${id}', 'booking', ${money}, '${statusPay}')">Hapus Data</button>
+                        <button class="btn-delete-item" onclick="triggerDelete('${id}', 'booking', ${dpAmount}, '${statusPay}')">Hapus Data</button>
                     </div>
                 </div>
             `);
         }
 
-        // --- HANDLER FORMS ---
         function handleFormSubmit(event) {
             event.preventDefault();
             const name = document.getElementById('clientNameInput').value;
@@ -546,10 +555,12 @@
             const service = document.getElementById('serviceInput').value;
             const date = document.getElementById('dateInput').value;
             const statusPay = document.getElementById('paymentStatusInput').value;
-            const dp = document.getElementById('dpInput').value;
+            const totalHargaStr = document.getElementById('totalHargaInput').value;
+            const dpStr = document.getElementById('dpInput').value;
             const note = document.getElementById('noteInput').value || 'Tidak ada catatan';
             
-            const rawMoney = parseInt(dp.replace(/\./g, '')) || 0;
+            const rawTotal = parseInt(totalHargaStr.replace(/\./g, '')) || 0;
+            const rawDp = parseInt(dpStr.replace(/\./g, '')) || 0;
             const uniqueId = 'local-' + Date.now();
 
             closeModal('bookingModal'); document.getElementById('bookingForm').reset();
@@ -558,15 +569,16 @@
             let deviceCreatedCount = parseInt(localStorage.getItem('genmua_deviceCreatedCount') || '0');
             deviceCreatedCount++; localStorage.setItem('genmua_deviceCreatedCount', deviceCreatedCount.toString());
 
-            appState.projectCount++; appState.uangMasuk += rawMoney;
+            appState.projectCount++; 
+            appState.uangMasuk += rawDp;
             if(statusPay === 'DP') appState.belumLunasCount++;
             
-            renderBookingToUI(uniqueId, name, service, date, rawMoney, note, statusPay, phone);
+            renderBookingToUI(uniqueId, name, service, date, rawTotal, rawDp, note, statusPay, phone);
             updateDashboardStats(); showToast("✨ Data tersimpan di dasbor.");
 
             fetch(scriptURL, {
                 method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nama: name, hp: phone, layanan: service, tanggal: date, dp: rawMoney, catatan: note, status: statusPay, studio: appState.studioName })
+                body: JSON.stringify({ nama: name, hp: phone, layanan: service, tanggal: date, totalHarga: rawTotal, dp: rawDp, catatan: note, status: statusPay, studio: appState.studioName })
             });
         }
 
@@ -610,44 +622,54 @@
             loadDataFromSheets();
         }
 
-        // --- SISTEM INVOICE & RENDER GAMBAR ---
-        function openInvoicePreview(name, service, money, type, date, phone = '') {
+        // --- SISTEM INVOICE & RENDER GAMBAR DENGAN PENGURANGAN OTOMATIS ---
+        function openInvoicePreview(name, service, totalHarga, dpAmount, type, date, phone = '') {
             let templateText = "";
             const studio = appState.studioName.toUpperCase();
+            const sisaPelunasan = Math.max(0, totalHarga - dpAmount);
 
-            // 1. Siapkan Text Message WhatsApp (Default Fallback)
+            const strTotal = totalHarga.toLocaleString('id-ID');
+            const strDp = dpAmount.toLocaleString('id-ID');
+            const strSisa = sisaPelunasan.toLocaleString('id-ID');
+
+            // 1. Copywriting Pesan WhatsApp Otomatis
             if (type === 'dp') {
-                templateText = `Halo Kak ${name},\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut rincian tanda jadi (DP) untuk mengamankan jadwal Kakak:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Dana Masuk (DP):* Rp ${money}\n- *Status:* Booking Terkonfirmasi (Pending Pelunasan)\n\nJadwal Kakak sudah aman & tercatat di sistem kami. Jika ada referensi makeup yang diinginkan, boleh dikirimkan ke kami ya Kak.\n\nTerima kasih banyak!`;
+                templateText = `Halo Kak ${name},\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut rincian tanda jadi (DP) & total paket Kakak:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Harga Paket:* Rp ${strTotal}\n- *DP Dibayar:* Rp ${strDp}\n- *Sisa Pelunasan:* Rp ${strSisa}\n- *Status:* Booking Terkonfirmasi (Pending Pelunasan)\n\nJadwal Kakak sudah aman & tercatat di sistem kami. Terima kasih banyak!`;
             } 
             else if (type === 'lunas') {
-                templateText = `Halo Kak ${name},\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut rincian pembayaran Anda:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Total Transaksi:* Rp ${money}\n- *Status:* LUNAS (Terbayar)\n\nKami sangat antusias untuk merias Kakak. Sampai jumpa di hari H!\n\nTerima kasih banyak!`;
+                templateText = `Halo Kak ${name},\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut rincian pelunasan pembayaran Anda:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Total Transaksi:* Rp ${strTotal}\n- *Status:* LUNAS (Terbayar Penuh ✅)\n\nKami sangat antusias untuk merias Kakak. Sampai jumpa di hari H!\n\nTerima kasih banyak!`;
             } 
             else if (type === 'tagihan') {
-                templateText = `Halo Kak ${name},\n\nSemoga Kakak sehat selalu.\n\nTidak terasa hari spesial Kakak sudah semakin dekat. Bersamaan dengan pesan ini, kami izin melampirkan pengingat rincian booking di *${studio}*:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Uang Masuk (DP):* Rp ${money}\n\nUntuk kelancaran persiapan di hari H, mohon kesediaannya untuk menyelesaikan sisa pelunasan sesuai kesepakatan ya Kak. Jika sudah transfer, mohon infokan bukti resinya.\n\nTerima kasih banyak atas pengertian & kerja samanya!`;
+                templateText = `Halo Kak ${name},\n\nSemoga Kakak sehat selalu.\n\nTidak terasa hari spesial Kakak sudah semakin dekat. Bersamaan dengan pesan ini, kami izin melampirkan pengingat sisa tagihan di *${studio}*:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Total Paket:* Rp ${strTotal}\n- *Sudah Dibayar (DP):* Rp ${strDp}\n- *Sisa Tagihan:* Rp ${strSisa}\n\nMohon kesediaannya untuk menyelesaikan sisa pelunasan tersebut. Jika sudah transfer, mohon infokan bukti resinya ya Kak.\n\nTerima kasih banyak atas pengertian & kerja samanya!`;
             }
 
-            // 2. Siapkan Data untuk Render Gambar HTML2Canvas
+            // 2. Set Data untuk Template Gambar HTML2Canvas
             document.getElementById('imgInvStudio').innerText = studio;
             document.getElementById('imgInvNo').innerText = "INV-" + Date.now().toString().slice(-5);
             document.getElementById('imgInvDate').innerText = date;
             document.getElementById('imgInvName').innerText = name;
             document.getElementById('imgInvService').innerText = service;
-            document.getElementById('imgInvPrice').innerText = "Rp " + money;
-            document.getElementById('imgInvSub').innerText = "Rp " + money;
-            document.getElementById('imgInvTotal').innerText = "Rp " + money;
+            document.getElementById('imgInvTotalPrice').innerText = "Rp " + strTotal;
+            document.getElementById('imgInvSub').innerText = "Rp " + strTotal;
+            document.getElementById('imgInvDpPaid').innerText = "Rp " + strDp;
+            document.getElementById('imgInvSisa').innerText = "Rp " + strSisa;
             document.getElementById('imgInvOwner').innerText = appState.ownerName;
             document.getElementById('imgInvBank').innerText = appState.bankInfo || 'BCA: -';
 
             const statusBox = document.getElementById('imgInvStatusBox');
+            const totalBoxTitle = document.getElementById('imgInvTotalBoxTitle');
+
             if (type === 'lunas') {
                 statusBox.className = "inv-status-img lunas";
                 statusBox.innerText = "LUNAS / PEMBAYARAN SELESAI";
+                totalBoxTitle.innerHTML = `TOTAL LUNAS TERBAYAR: <span>Rp ${strTotal}</span>`;
             } else {
                 statusBox.className = "inv-status-img pending";
-                statusBox.innerText = "**PENDING / MENUNGGU SISA PEMBAYARAN";
+                statusBox.innerText = "PENDING / MENUNGGU SISA PEMBAYARAN";
+                totalBoxTitle.innerHTML = `SISA KEKURANGAN: <span id="imgInvSisa">Rp ${strSisa}</span>`;
             }
 
-            // 3. Pasang Link Tombol WA
+            // 3. Tombol WhatsApp Action
             const cleanPhone = formatWA(phone);
             const targetUrl = cleanPhone 
                 ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(templateText)}`
@@ -663,7 +685,6 @@
             // 4. Tombol Download Gambar Action (HTML2Canvas)
             document.getElementById('downloadImageBtn').onclick = function() {
                 const captureArea = document.getElementById('invoice-capture-area');
-                // Proses ubah HTML jadi Canvas lalu didownload
                 html2canvas(captureArea, { scale: 3 }).then(canvas => {
                     let link = document.createElement('a');
                     link.download = `Invoice_${name.replace(/\s+/g, '_')}.png`;
@@ -748,7 +769,6 @@
             }
             document.getElementById('bookingModal').classList.add('active'); 
         }
-
     </script>
 </body>
 </html>
