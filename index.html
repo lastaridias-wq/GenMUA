@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GenMUA | Studio Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Library Pembuat Gambar -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --bg-main: #FBF9F7; --card-bg: #FFFFFF; --text-main: #3D3532; 
@@ -91,6 +93,22 @@
         #toast { visibility: hidden; min-width: 240px; background-color: #3D3532; color: #fff; text-align: center; border-radius: 12px; padding: 12px 16px; position: fixed; z-index: 1000; left: 50%; bottom: 70px; transform: translateX(-50%); font-size: 12px; font-weight: 600; opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
         #toast.show { visibility: visible; opacity: 1; bottom: 90px; }
         .invoice-preview-box { background: #FBF9F7; border: 1px solid var(--border); border-radius: 12px; padding: 14px; font-size: 12px; text-align: left; white-space: pre-line; margin-bottom: 16px; color: #5C4F4A; line-height: 1.5; }
+
+        /* AREA TERSEMBUNYI UNTUK RENDER GAMBAR INVOICE TABEL */
+        #invoice-capture-area { position: absolute; left: -9999px; top: 0; width: 400px; background: #fff; padding: 25px; border: 1px solid #EAE3DD; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .inv-header-img { text-align: center; margin-bottom: 20px; }
+        .inv-header-img h1 { font-size: 26px; color: var(--accent); margin-bottom: 4px; font-weight: 700; }
+        .inv-header-img h2 { font-size: 16px; color: #3D3532; letter-spacing: 1px; font-weight: 700; }
+        .inv-meta-grid { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 16px; text-align: center; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+        .inv-table-img { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 12px; text-align: center; }
+        .inv-table-img th { background: #3D3532; color: #fff; padding: 10px; border: 1px solid #3D3532; }
+        .inv-table-img td { padding: 12px; border: 1px solid #EAE3DD; color: #3D3532; }
+        .inv-subtotal { text-align: right; font-size: 13px; margin-bottom: 10px; }
+        .inv-total-box { background: linear-gradient(90deg, #E2C9AB 0%, #C5A880 100%); color: #fff; padding: 12px; font-weight: bold; font-size: 16px; text-align: center; border-radius: 8px; margin-bottom: 12px; letter-spacing: 0.5px; }
+        .inv-status-img { padding: 10px; text-align: center; font-weight: bold; border-radius: 8px; color: #fff; letter-spacing: 1px; }
+        .inv-status-img.pending { background: #ED6C02; }
+        .inv-status-img.lunas { background: #2E7D32; }
+        .inv-footer-img { margin-top: 20px; font-size: 12px; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #EAE3DD; padding-top: 15px; }
     </style>
 </head>
 <body>
@@ -165,7 +183,7 @@
             <div class="section-title">Pengaturan Profil Studio</div>
             <div class="settings-card">
                 <h4>Informasi Identitas Studio</h4>
-                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Data aplikasi akan otomatis difilter berdasarkan Nama Studio ini.</p>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Data aplikasi otomatis difilter berdasarkan Nama Studio ini.</p>
                 <form id="settingsForm" onsubmit="handleSettingsSubmit(event)">
                     <div class="form-group">
                         <label>Nama Studio / Brand (Penting)</label>
@@ -174,6 +192,11 @@
                     <div class="form-group">
                         <label>Nama Pemilik (Owner)</label>
                         <input type="text" id="settingOwnerName" required>
+                    </div>
+                    <!-- Tambahan Bank Info -->
+                    <div class="form-group">
+                        <label>Nama Bank & No Rekening (Opsional)</label>
+                        <input type="text" id="settingBankInfo" placeholder="Cth: BCA 123456789">
                     </div>
                     <button type="submit" class="submit-btn" style="margin-top: 5px;">Simpan Profil Studio</button>
                 </form>
@@ -194,7 +217,7 @@
             <button class="nav-item" id="navAkun" onclick="switchPage('akun')"><div>⚙️</div>Akun</button>
         </div>
 
-        <!-- SEMUA MODAL FORM -->
+        <!-- MODAL BOOKING -->
         <div class="modal-overlay" id="bookingModal">
             <div class="modal-sheet">
                 <div class="modal-header">
@@ -203,10 +226,7 @@
                 </div>
                 <form id="bookingForm" onsubmit="handleFormSubmit(event)">
                     <div class="form-group"><label>Nama Klien</label><input type="text" id="clientNameInput" required></div>
-                    
-                    <!-- INPUT NO WHATSAPP KLIEN -->
-                    <div class="form-group"><label>No. WhatsApp Klien (Opsional)</label><input type="tel" id="clientPhoneInput" placeholder="Cth: 08123456789"></div>
-
+                    <div class="form-group"><label>No. WhatsApp Klien</label><input type="tel" id="clientPhoneInput" placeholder="Cth: 08123456789"></div>
                     <div class="form-group">
                         <label>Layanan</label>
                         <select id="serviceInput">
@@ -227,6 +247,7 @@
             </div>
         </div>
 
+        <!-- MODAL EXPENSE -->
         <div class="modal-overlay" id="expenseModal">
             <div class="modal-sheet">
                 <div class="modal-header">
@@ -241,17 +262,21 @@
             </div>
         </div>
 
+        <!-- MODAL INVOICE PREVIEW -->
         <div class="modal-overlay" id="invoicePreviewModal">
             <div class="modal-sheet">
                 <div class="modal-header">
-                    <h3>Pratinjau Pesan Klien</h3>
+                    <h3>Kirim Invoice Klien</h3>
                     <button class="close-modal" onclick="closeModal('invoicePreviewModal')">✕</button>
                 </div>
                 <div class="invoice-preview-box" id="invoicePreviewText"></div>
-                <button class="submit-btn" style="background: #25D366;" id="whatsappSendBtn">📲 Kirim ke WhatsApp Klien</button>
+                <!-- Tombol Action Baru -->
+                <button class="submit-btn" style="background: var(--accent); margin-bottom: 8px; color: white;" id="downloadImageBtn">⬇️ Download Foto Invoice (Gambar)</button>
+                <button class="submit-btn" style="background: #25D366;" id="whatsappSendBtn">📲 Kirim Teks ke WhatsApp</button>
             </div>
         </div>
 
+        <!-- MODAL CONFIRM DELETE -->
         <div class="modal-overlay" id="deleteConfirmModal">
             <div class="modal-sheet" style="text-align: center; padding-top: 30px;">
                 <div style="font-size: 36px; margin-bottom: 10px;">🗑️</div>
@@ -264,7 +289,7 @@
             </div>
         </div>
 
-        <!-- Limit Modal -->
+        <!-- MODAL LIMIT -->
         <div class="modal-overlay" id="limitModal">
             <div class="modal-sheet" style="text-align: center; padding-top: 30px;">
                 <div style="font-size: 36px; margin-bottom: 10px;">🔒</div>
@@ -275,14 +300,13 @@
             </div>
         </div>
 
-        <!-- Upgrade PRO Modal -->
+        <!-- MODAL UPGRADE PRO -->
         <div class="modal-overlay" id="upgradeModal">
             <div class="modal-sheet" style="padding-top: 20px;">
                 <div class="modal-header" style="margin-bottom: 15px;">
                     <h3 style="font-size: 16px; font-weight: 700;">Aktivasi Akun PRO</h3>
                     <button class="close-modal" onclick="closeModal('upgradeModal')">✕</button>
                 </div>
-                
                 <div style="background: #F4EFEA; padding: 16px; border-radius: 12px; margin-bottom: 16px;">
                     <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Keuntungan GenMUA PRO:</h4>
                     <ul style="font-size: 11px; color: var(--text-muted); margin-left: 16px; line-height: 1.6;">
@@ -290,27 +314,64 @@
                         <li>Sinkronisasi aman ke Google Sheets Anda</li>
                         <li>Akses fitur copywriting tagihan elegan</li>
                     </ul>
-                    <div style="margin-top: 10px; font-size: 14px; font-weight: 800; color: var(--accent);">
-                        Hanya Rp 35.000 / Sekali Bayar
-                    </div>
+                    <div style="margin-top: 10px; font-size: 14px; font-weight: 800; color: var(--accent);">Hanya Rp 35.000 / Sekali Bayar</div>
                 </div>
-
-                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Sudah transfer? Masukkan <b>Kode Aktivasi</b> dari Admin di sini:</p>
-                
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Masukkan <b>Kode Aktivasi</b> dari Admin di sini:</p>
                 <div class="form-group">
                     <input type="text" id="proCodeInput" placeholder="Ketik Kode Aktivasi..." style="text-align: center; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
                 </div>
-
                 <button class="submit-btn" style="background: var(--text-main); margin-bottom: 8px;" onclick="verifyProCode()">🔑 Verifikasi Kode</button>
                 <button class="submit-btn" style="background: #25D366; color: white;" onclick="buyProCode()">📲 Pesan Kode via WhatsApp</button>
             </div>
         </div>
 
     </div>
+
+    <!-- AREA HIDDEN (TEMPLATE GAMBAR INVOICE) -->
+    <!-- Elemen ini dirancang agar saat di download via HTML2Canvas, hasilnya sangat rapi -->
+    <div id="invoice-capture-area">
+        <div class="inv-header-img">
+            <h1 id="imgInvStudio">GenMUA</h1>
+            <h2>INVOICE PEMBAYARAN</h2>
+        </div>
+        <div class="inv-meta-grid">
+            <div><span style="color:#8C827D">No. Invoice:</span><br><b id="imgInvNo">INV-001</b></div>
+            <div><span style="color:#8C827D">Tanggal:</span><br><b id="imgInvDate">01 Jan 2026</b></div>
+            <div><span style="color:#8C827D">Klien:</span><br><b id="imgInvName">Nama Klien</b></div>
+        </div>
+        <table class="inv-table-img">
+            <thead>
+                <tr>
+                    <th>Layanan Rias</th>
+                    <th>Harga</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="imgInvService" style="font-weight: 600;">Paket Rias</td>
+                    <td id="imgInvPrice">Rp 0</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="inv-subtotal"><b>Subtotal:</b> <span id="imgInvSub">Rp 0</span></div>
+        <div class="inv-total-box">**TOTAL DANA MASUK: <span id="imgInvTotal">Rp 0</span></div>
+        <div id="imgInvStatusBox" class="inv-status-img pending">**PENDING / MENUNGGU SISA PEMBAYARAN</div>
+        <div class="inv-footer-img">
+            <div style="line-height:1.5;">
+                <b id="imgInvBank" style="font-size: 13px;">BCA: 123456789</b><br>
+                <span style="color:#8C827D;">a/n <span id="imgInvOwner">Owner Name</span></span>
+            </div>
+            <div style="text-align:right; color:#8C827D;">
+                <b>Terima Kasih 🙏</b><br>
+                Telah mempercayakan momen<br>spesial Anda bersama kami.
+            </div>
+        </div>
+    </div>
+
     <div id="toast">✅ Berhasil!</div>
 
     <script>
-        // --- 1. FITUR MAGIC LINK (UNTUK JASA SETUP INSTAN) ---
+        // --- INISIALISASI ---
         const urlParams = new URLSearchParams(window.location.search);
         const paramStudio = urlParams.get('studio');
         const paramOwner = urlParams.get('owner');
@@ -318,14 +379,12 @@
 
         if (paramStudio) { localStorage.setItem('genmua_studioName', paramStudio); }
         if (paramOwner) { localStorage.setItem('genmua_ownerName', paramOwner); }
-        if (paramCode && paramCode.toUpperCase() === "GENMUA2026") {
-            localStorage.setItem('genmua_isPro', 'true');
-        }
+        if (paramCode && paramCode.toUpperCase() === "GENMUA2026") { localStorage.setItem('genmua_isPro', 'true'); }
 
-        // --- 2. AMBIL MEMORI DENGAN DEFAULT AMAN ---
         let appState = {
             studioName: localStorage.getItem('genmua_studioName') || 'Nela Mua Studio',
             ownerName: localStorage.getItem('genmua_ownerName') || 'Nela',
+            bankInfo: localStorage.getItem('genmua_bankInfo') || 'BCA: 123456789',
             isPro: localStorage.getItem('genmua_isPro') === 'true',
             projectCount: 0, 
             uangMasuk: 0, 
@@ -334,7 +393,6 @@
         };
         let activeDelete = { id: null, type: null, amount: 0, status: '' };
 
-        // URL GOOGLE APPS SCRIPT
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyEMTMyqg9tKz54icmTijvjVXbYBwzR5lDGPnaIhwkw2ehUYwmZ_1iU08ouYWNxu5arjQ/exec';
 
         // SET IDENTITAS DI MUKA
@@ -342,10 +400,13 @@
         document.getElementById('headerOwnerName').innerText = "Owner: " + appState.ownerName;
         document.getElementById('settingStudioName').value = appState.studioName;
         document.getElementById('settingOwnerName').value = appState.ownerName;
+        document.getElementById('settingBankInfo').value = appState.bankInfo;
+        
         if(appState.isPro) activateProUI();
 
         window.addEventListener('DOMContentLoaded', loadDataFromSheets);
 
+        // --- SISTEM HAPUS DATA ---
         document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
             if (activeDelete.id) {
                 if (activeDelete.type === 'booking') {
@@ -360,7 +421,6 @@
                     const e = document.getElementById('exp-' + activeDelete.id);
                     if(e) e.remove(); 
                     appState.uangKeluar = Math.max(0, appState.uangKeluar - activeDelete.amount);
-                    
                     let stored = getStoredExpenses();
                     stored = stored.filter(item => String(item.id) !== String(activeDelete.id));
                     saveStoredExpenses(stored);
@@ -375,13 +435,11 @@
             document.getElementById('deleteConfirmModal').classList.add('active');
         }
 
-        // --- HELPER FORMAT WHATSAPP INTELIGEN (0812... -> 62812...) ---
+        // --- HELPER FORMAT WHATSAPP ---
         function formatWA(phone) {
             if (!phone) return '';
             let cleaned = phone.replace(/[^0-9]/g, '');
-            if (cleaned.startsWith('0')) {
-                cleaned = '62' + cleaned.substring(1);
-            }
+            if (cleaned.startsWith('0')) cleaned = '62' + cleaned.substring(1);
             return cleaned;
         }
 
@@ -407,7 +465,6 @@
                         let phoneNum = item.hp || item.phone || '';
                         appState.projectCount++; appState.uangMasuk += rawMoney;
                         if(item.status === 'DP') appState.belumLunasCount++;
-                        
                         renderBookingToUI(uId, item.nama, item.layanan, item.tanggal, rawMoney, item.catatan, item.status, phoneNum);
                     });
                 }
@@ -418,27 +475,14 @@
             }
         }
 
-        function getExpenseStorageKey() {
-            return 'genmua_exp_' + appState.studioName.replace(/\s+/g, '_');
-        }
-
-        function getStoredExpenses() {
-            try {
-                return JSON.parse(localStorage.getItem(getExpenseStorageKey()) || '[]');
-            } catch(e) {
-                return [];
-            }
-        }
-
-        function saveStoredExpenses(expArray) {
-            localStorage.setItem(getExpenseStorageKey(), JSON.stringify(expArray));
-        }
+        function getExpenseStorageKey() { return 'genmua_exp_' + appState.studioName.replace(/\s+/g, '_'); }
+        function getStoredExpenses() { try { return JSON.parse(localStorage.getItem(getExpenseStorageKey()) || '[]'); } catch(e) { return []; } }
+        function saveStoredExpenses(expArray) { localStorage.setItem(getExpenseStorageKey(), JSON.stringify(expArray)); }
 
         function loadStoredExpensesUI() {
             document.getElementById('financeListContainer').innerHTML = '';
             appState.uangKeluar = 0;
             const stored = getStoredExpenses();
-            
             stored.forEach(item => {
                 appState.uangKeluar += item.rawNominal;
                 renderExpenseToUI(item.id, item.desc, item.nominal, item.rawNominal);
@@ -494,6 +538,7 @@
             `);
         }
 
+        // --- HANDLER FORMS ---
         function handleFormSubmit(event) {
             event.preventDefault();
             const name = document.getElementById('clientNameInput').value;
@@ -511,11 +556,9 @@
             if(appState.projectCount === 0) document.getElementById('bookingListContainer').innerHTML = '';
 
             let deviceCreatedCount = parseInt(localStorage.getItem('genmua_deviceCreatedCount') || '0');
-            deviceCreatedCount++;
-            localStorage.setItem('genmua_deviceCreatedCount', deviceCreatedCount.toString());
+            deviceCreatedCount++; localStorage.setItem('genmua_deviceCreatedCount', deviceCreatedCount.toString());
 
-            appState.projectCount++; 
-            appState.uangMasuk += rawMoney;
+            appState.projectCount++; appState.uangMasuk += rawMoney;
             if(statusPay === 'DP') appState.belumLunasCount++;
             
             renderBookingToUI(uniqueId, name, service, date, rawMoney, note, statusPay, phone);
@@ -550,50 +593,90 @@
             event.preventDefault();
             const newStudio = document.getElementById('settingStudioName').value.trim();
             const newOwner = document.getElementById('settingOwnerName').value.trim();
+            const newBank = document.getElementById('settingBankInfo').value.trim() || 'BCA: 123456789';
             
             appState.studioName = newStudio;
             appState.ownerName = newOwner;
+            appState.bankInfo = newBank;
             
             localStorage.setItem('genmua_studioName', newStudio);
             localStorage.setItem('genmua_ownerName', newOwner);
+            localStorage.setItem('genmua_bankInfo', newBank);
             
             document.getElementById('headerStudioName').innerText = newStudio;
             document.getElementById('headerOwnerName').innerText = "Owner: " + newOwner;
             
-            showToast("✨ Profil studio berhasil diperbarui!");
+            showToast("✨ Profil studio & rekening berhasil diperbarui!");
             loadDataFromSheets();
         }
 
+        // --- SISTEM INVOICE & RENDER GAMBAR ---
         function openInvoicePreview(name, service, money, type, date, phone = '') {
-    let templateText = "";
-    const studio = appState.studioName.toUpperCase();
+            let templateText = "";
+            const studio = appState.studioName.toUpperCase();
 
-    if (type === 'dp') {
-        // Tanda bintang pada ${name} sudah dihapus di bawah ini
-        templateText = `Halo Kak ${name}, ✨\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut kami lampirkan rincian tanda jadi (DP) untuk mengamankan jadwal Kakak:\n\n💄 *Layanan:* ${service}\n📅 *Tgl Acara:* ${date}\n💳 *Dana Masuk (DP):* Rp ${money}\n📊 *Status:* Booking Terkonfirmasi (Pending Pelunasan)\n\nJadwal Kakak sudah aman dan tercatat di sistem kami. Jika ada referensi makeup yang diinginkan, boleh banget dikirimkan ke kami ya, Kak. Sehat selalu sampai hari H! 🙏`;
-    } 
-    else if (type === 'lunas') {
-        // Tanda bintang pada ${name} sudah dihapus di bawah ini
-        templateText = `Halo Kak ${name}, ✨\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut adalah rincian pembayaran Anda:\n\n💄 *Layanan:* ${service}\n📅 *Tgl Acara:* ${date}\n💳 *Total Transaksi:* Rp ${money}\n📊 *Status:* LUNAS ✅\n\nKami sangat antusias untuk merias Kakak. Sampai jumpa di hari H! 🙏`;
-    } 
-    else if (type === 'tagihan') {
-        // Tanda bintang pada ${name} sudah dihapus di bawah ini
-        templateText = `Halo Kak ${name}, ✨\nSemoga Kakak selalu dalam keadaan sehat dan bahagia ya!\n\nTidak terasa hari spesial Kakak sudah semakin dekat. Kami sangat excited untuk merias Kakak nanti! 🥰\n\nBersamaan dengan pesan ini, kami izin melampirkan pengingat rincian layanan booking di *${studio}*:\n\n💄 *Layanan:* ${service}\n📅 *Tgl Acara:* ${date}\n💳 *Uang Masuk (DP):* Rp ${money}\n\nUntuk kelancaran persiapan di hari H, mohon kesediaannya untuk menyelesaikan sisa pelunasan sesuai kesepakatan kita ya, Kak. Jika sudah berkenan melakukan transfer, mohon informasikan kembali ke kami beserta bukti resinya.\n\nTerima kasih banyak atas pengertian dan kerja samanya, Kak! 🙏`;
-    }
+            // 1. Siapkan Text Message WhatsApp (Default Fallback)
+            if (type === 'dp') {
+                templateText = `Halo Kak ${name},\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut rincian tanda jadi (DP) untuk mengamankan jadwal Kakak:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Dana Masuk (DP):* Rp ${money}\n- *Status:* Booking Terkonfirmasi (Pending Pelunasan)\n\nJadwal Kakak sudah aman & tercatat di sistem kami. Jika ada referensi makeup yang diinginkan, boleh dikirimkan ke kami ya Kak.\n\nTerima kasih banyak!`;
+            } 
+            else if (type === 'lunas') {
+                templateText = `Halo Kak ${name},\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut rincian pembayaran Anda:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Total Transaksi:* Rp ${money}\n- *Status:* LUNAS (Terbayar)\n\nKami sangat antusias untuk merias Kakak. Sampai jumpa di hari H!\n\nTerima kasih banyak!`;
+            } 
+            else if (type === 'tagihan') {
+                templateText = `Halo Kak ${name},\n\nSemoga Kakak sehat selalu.\n\nTidak terasa hari spesial Kakak sudah semakin dekat. Bersamaan dengan pesan ini, kami izin melampirkan pengingat rincian booking di *${studio}*:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Uang Masuk (DP):* Rp ${money}\n\nUntuk kelancaran persiapan di hari H, mohon kesediaannya untuk menyelesaikan sisa pelunasan sesuai kesepakatan ya Kak. Jika sudah transfer, mohon infokan bukti resinya.\n\nTerima kasih banyak atas pengertian & kerja samanya!`;
+            }
 
-    const cleanPhone = formatWA(phone);
-    const targetUrl = cleanPhone 
-        ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(templateText)}`
-        : `https://wa.me/?text=${encodeURIComponent(templateText)}`;
+            // 2. Siapkan Data untuk Render Gambar HTML2Canvas
+            document.getElementById('imgInvStudio').innerText = studio;
+            document.getElementById('imgInvNo').innerText = "INV-" + Date.now().toString().slice(-5);
+            document.getElementById('imgInvDate').innerText = date;
+            document.getElementById('imgInvName').innerText = name;
+            document.getElementById('imgInvService').innerText = service;
+            document.getElementById('imgInvPrice').innerText = "Rp " + money;
+            document.getElementById('imgInvSub').innerText = "Rp " + money;
+            document.getElementById('imgInvTotal').innerText = "Rp " + money;
+            document.getElementById('imgInvOwner').innerText = appState.ownerName;
+            document.getElementById('imgInvBank').innerText = appState.bankInfo || 'BCA: -';
 
-    document.getElementById('invoicePreviewText').innerText = templateText;
-    document.getElementById('whatsappSendBtn').onclick = function() { 
-        window.open(targetUrl, '_blank'); 
-        closeModal('invoicePreviewModal'); 
-    };
-    document.getElementById('invoicePreviewModal').classList.add('active');
-}
-        
+            const statusBox = document.getElementById('imgInvStatusBox');
+            if (type === 'lunas') {
+                statusBox.className = "inv-status-img lunas";
+                statusBox.innerText = "LUNAS / PEMBAYARAN SELESAI";
+            } else {
+                statusBox.className = "inv-status-img pending";
+                statusBox.innerText = "**PENDING / MENUNGGU SISA PEMBAYARAN";
+            }
+
+            // 3. Pasang Link Tombol WA
+            const cleanPhone = formatWA(phone);
+            const targetUrl = cleanPhone 
+                ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(templateText)}`
+                : `https://wa.me/?text=${encodeURIComponent(templateText)}`;
+
+            document.getElementById('invoicePreviewText').innerText = templateText;
+            
+            document.getElementById('whatsappSendBtn').onclick = function() { 
+                window.open(targetUrl, '_blank'); 
+                closeModal('invoicePreviewModal'); 
+            };
+            
+            // 4. Tombol Download Gambar Action (HTML2Canvas)
+            document.getElementById('downloadImageBtn').onclick = function() {
+                const captureArea = document.getElementById('invoice-capture-area');
+                // Proses ubah HTML jadi Canvas lalu didownload
+                html2canvas(captureArea, { scale: 3 }).then(canvas => {
+                    let link = document.createElement('a');
+                    link.download = `Invoice_${name.replace(/\s+/g, '_')}.png`;
+                    link.href = canvas.toDataURL("image/png");
+                    link.click();
+                    showToast("⬇️ Invoice Gambar Berhasil Diunduh!");
+                });
+            };
+
+            document.getElementById('invoicePreviewModal').classList.add('active');
+        }
+
+        // --- SISTEM AKUN ---
         function openUpgradeModal() { closeModal('limitModal'); document.getElementById('upgradeModal').classList.add('active'); }
 
         function verifyProCode() {
@@ -625,10 +708,8 @@
 
         function updateDashboardStats() {
             let netProfit = appState.uangMasuk - appState.uangKeluar;
-            
             document.getElementById('totalOmzetDisplay').innerText = "Rp " + netProfit.toLocaleString('id-ID');
             document.getElementById('netProfitDisplay').innerText = "Rp " + netProfit.toLocaleString('id-ID');
-            
             document.getElementById('totalMasukDisplay').innerText = "Rp " + appState.uangMasuk.toLocaleString('id-ID');
             document.getElementById('totalKeluarDisplay').innerText = "Rp " + appState.uangKeluar.toLocaleString('id-ID');
             document.getElementById('countBooking').innerText = appState.projectCount;
@@ -668,32 +749,6 @@
             document.getElementById('bookingModal').classList.add('active'); 
         }
 
-        function openInvoicePreview(name, service, money, type, date, phone = '') {
-    let templateText = "";
-    const studio = appState.studioName.toUpperCase();
-
-    if (type === 'dp') {
-        templateText = `Halo Kak ${name},\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut rincian tanda jadi (DP) untuk mengamankan jadwal Kakak:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Dana Masuk (DP):* Rp ${money}\n- *Status:* Booking Terkonfirmasi (Pending Pelunasan)\n\nJadwal Kakak sudah aman & tercatat di sistem kami. Jika ada referensi makeup yang diinginkan, boleh dikirimkan ke kami ya Kak.\n\nTerima kasih banyak!`;
-    } 
-    else if (type === 'lunas') {
-        templateText = `Halo Kak ${name},\n\nTerima kasih banyak sudah mempercayakan momen spesial Kakak bersama *${studio}*.\n\nBerikut rincian pembayaran Anda:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Total Transaksi:* Rp ${money}\n- *Status:* LUNAS (Terbayar)\n\nKami sangat antusias untuk merias Kakak. Sampai jumpa di hari H!\n\nTerima kasih banyak!`;
-    } 
-    else if (type === 'tagihan') {
-        templateText = `Halo Kak ${name},\n\nSemoga Kakak sehat selalu.\n\nTidak terasa hari spesial Kakak sudah semakin dekat. Bersamaan dengan pesan ini, kami izin melampirkan pengingat rincian booking di *${studio}*:\n\n- *Layanan:* ${service}\n- *Tgl Acara:* ${date}\n- *Uang Masuk (DP):* Rp ${money}\n\nUntuk kelancaran persiapan di hari H, mohon kesediaannya untuk menyelesaikan sisa pelunasan sesuai kesepakatan ya Kak. Jika sudah transfer, mohon infokan bukti resinya.\n\nTerima kasih banyak atas pengertian & kerja samanya!`;
-    }
-
-    const cleanPhone = formatWA(phone);
-    const targetUrl = cleanPhone 
-        ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(templateText)}`
-        : `https://wa.me/?text=${encodeURIComponent(templateText)}`;
-
-    document.getElementById('invoicePreviewText').innerText = templateText;
-    document.getElementById('whatsappSendBtn').onclick = function() { 
-        window.open(targetUrl, '_blank'); 
-        closeModal('invoicePreviewModal'); 
-    };
-    document.getElementById('invoicePreviewModal').classList.add('active');
-}
     </script>
 </body>
 </html>
