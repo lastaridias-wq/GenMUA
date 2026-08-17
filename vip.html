@@ -1082,8 +1082,19 @@
 
         async function verifyProCode() {
             const inputCode = document.getElementById('proCodeInput').value.trim().toUpperCase();
+            
+            // --- TRIK RAHASIA UNTUK RESET CACHE ---
+            if (inputCode === "RESET") {
+                localStorage.removeItem('genmua_deviceCreatedCount');
+                appState.projectCount = 0;
+                showToast("🔄 Cache Limit Direset! Silakan coba buat booking lagi.");
+                closeModal('upgradeModal');
+                return;
+            }
+            // --------------------------------------
+
             if (!inputCode) {
-                alert("Masukkan kode aktivasi terlebih dahulu!");
+                showToast("⚠️ Masukkan kode aktivasi terlebih dahulu!");
                 return;
             }
 
@@ -1099,13 +1110,12 @@
                     closeModal('upgradeModal');
                     showToast("🚀 Berhasil! Akun Anda kini berstatus PRO.");
                 } else {
-                    alert("❌ Kode Aktivasi salah, sudah tidak aktif, atau tidak terdaftar!");
+                    showToast("❌ Kode salah, kedaluwarsa, atau tidak terdaftar!");
                 }
             } catch (error) {
-                alert("❌ Gagal terhubung ke server. Periksa koneksi internet Anda.");
+                showToast("❌ Gagal terhubung ke server. Periksa koneksi Anda.");
             }
         }
-
         function buyProCode() {
             const waNumber = "6281234567890";
             const textMsg = encodeURIComponent(`Halo Admin GenMUA,\n\nSaya tertarik untuk aktivasi akun PRO seharga *Rp 35.000 (Sekali Bayar)* untuk studio saya:\n\n*Studio:* ${appState.studioName}\n*Owner:* ${appState.ownerName}\n\nMohon info nomor rekening pembayarannya ya kak. Terima kasih!`);
